@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1094541738710",
+    "project_id": "moco-rd1",
+    "storage_bucket": "moco-rd1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1094541738710:android:7e1e5732b2c739c639bf77",
+        "android_client_info": {
+          "package_name": "com.reyndev.moco"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1094541738710-0eivl9p124dchk4tu181qhla5p813qfq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.reyndev.moco",
+            "certificate_hash": "ac9b49644d5d01573bdca90aea9feeccd87214ca"
+          }
+        },
+        {
+          "client_id": "1094541738710-asbjadrobp95a8tv83viqhbkjgl811o4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvVAem05HPKjxhpkizXh5qW8mCheOLs_g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1094541738710-asbjadrobp95a8tv83viqhbkjgl811o4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
