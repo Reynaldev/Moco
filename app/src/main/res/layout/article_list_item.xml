@@ -5,22 +5,32 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
+    android:padding="8dp"
     android:background="@drawable/shape_panel" >
 
     <TextView
         style="@style/TextAppearance.Material3.BodyMedium"
         android:id="@+id/title"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/date"
         tools:text="Lorem ipsum article title" />
 
-    <View
+    <TextView
+        style="@style/TextAppearance.Material3.BodySmall"
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="20 Sep 2023" />
+
+    <com.google.android.material.divider.MaterialDivider
         android:id="@+id/border"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/gray900"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title" />
@@ -35,14 +45,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/border"
         tools:text="Lorem ipsum kolor si jamet" />
-
-    <TextView
-        style="@style/TextAppearance.Material3.BodySmall"
-        android:id="@+id/date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/desc"
-        tools:text="20 Sep 2023" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

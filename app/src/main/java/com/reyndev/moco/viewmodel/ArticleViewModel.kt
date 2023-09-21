@@ -2,11 +2,14 @@ package com.reyndev.moco.viewmodel
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.reyndev.moco.model.Article
 import com.reyndev.moco.model.ArticleDao
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -15,6 +18,8 @@ import java.util.Locale
 private const val TAG = "ArticleViewModel"
 
 class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
+    val articles: LiveData<List<Article>> = dao.getArticles().asLiveData()
+
     private fun insert(article: Article) {
         viewModelScope.launch {
             dao.insert(article)

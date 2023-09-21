@@ -4,7 +4,10 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -16,6 +19,7 @@ import com.reyndev.moco.adapter.ArticleCacheAdapter
 import com.reyndev.moco.databinding.ActivityMainBinding
 import com.reyndev.moco.viewmodel.ArticleViewModel
 import com.reyndev.moco.viewmodel.ArticleViewModelFactory
+import kotlinx.coroutines.launch
 
 private const val TAG = "MainActivity"
 
@@ -38,9 +42,14 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        /*
+        * NavigationView, try it by tapping on user icon (top-right) button,
+        * Drag down the view or tap the close menu to close.
+        * */
         bottomSheetBehavior = BottomSheetBehavior.from(binding.navigationView)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
+        // Initialize Firebase
         db = Firebase.database
         auth = Firebase.auth
 
@@ -52,8 +61,16 @@ class MainActivity : AppCompatActivity() {
 //            binding.btnSettings.setImageURI(auth.currentUser!!.photoUrl)
         }
 
-        binding.recyclerView.adapter = ArticleCacheAdapter { article ->
-            Log.v(TAG, article.title.toString())
+        // Adapter and RecyclerView setup
+        val adapter = ArticleCacheAdapter { article ->
+            // TODO: Set intent to access the link by browser
+            Toast.makeText(this, article.title.toString(), Toast.LENGTH_SHORT).show()
+        }
+        binding.recyclerView.adapter = adapter
+
+        // Observe
+        viewModel.articles.observe(this) {
+            adapter.submitList(it)
         }
 
         binding.btnSettings.setOnClickListener {

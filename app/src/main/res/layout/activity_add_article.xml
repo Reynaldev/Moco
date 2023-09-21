@@ -48,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:helperText="Must be comma-separated. E.g. (Sports, Entertainment)">
+        app:helperText="No space. Must be comma-separated. E.g:(Sports, Science)">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_tags"

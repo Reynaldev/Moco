@@ -5,13 +5,12 @@ import android.icu.text.SimpleDateFormat
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.DiffUtil.DiffResult
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.reyndev.moco.databinding.ArticleListItemBinding
 import com.reyndev.moco.model.Article
 
-class ArticleCacheAdapter(val onClick: (Article) -> Unit)
+class ArticleCacheAdapter(private val onClick: (Article) -> Unit)
     : ListAdapter<Article, ArticleCacheAdapter.ArticleViewHolder>(DiffCallback) {
 
     class ArticleViewHolder(private val binding: ArticleListItemBinding)
@@ -21,7 +20,7 @@ class ArticleCacheAdapter(val onClick: (Article) -> Unit)
         fun bind(article: Article) {
             binding.title.text = article.title
             binding.desc.text = article.desc
-            binding.date.text = java.text.SimpleDateFormat("dd/MM/yyyy")
+            binding.date.text = SimpleDateFormat("dd/MM/yyyy")
                 .format(article.date?.toLong())
         }
     }
@@ -37,8 +36,13 @@ class ArticleCacheAdapter(val onClick: (Article) -> Unit)
         )
     }
 
-    override fun onBindViewHolder(holder: ArticleCacheAdapter.ArticleViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ArticleViewHolder, position: Int) {
         val item = getItem(position)
+
+        holder.itemView.setOnClickListener {
+            onClick(item)
+        }
+
         holder.bind(item)
     }
 
