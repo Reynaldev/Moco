@@ -32,8 +32,8 @@ fun extractHtml(link: String, ctx: Context): Article? {
                     document.p {              // Get every <p> text
                         findAll {
                             eachText
-                                .filter { it.length > 50 }
-                                .subList(0, 3)
+                                .filter { it.length > 50 }  // Get text where length is more than 50
+                                .subList(0, 3)              // SubList to only 3 elements
                         }
                     }.toString(),
                     null,   // Null for now, will be assigned later

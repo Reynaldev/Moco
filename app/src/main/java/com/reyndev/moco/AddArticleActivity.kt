@@ -51,17 +51,19 @@ class AddArticleActivity : AppCompatActivity() {
         }
 
         binding.btnAdd.setOnClickListener {
-//            insertArticle()
+            insertArticle()
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
 
         showLinkInputDialog()
     }
 
+    override fun onStart() {
+        super.onStart()
+    }
+
+    /* Show link insert MaterialDialog */
     private fun showLinkInputDialog() {
+        // EditText to put inside the Dialog
         val input = EditText(this)
             .also {
                 it.hint = "Put the link in here"
@@ -84,6 +86,7 @@ class AddArticleActivity : AppCompatActivity() {
             .show()
     }
 
+    /* Assign variable to each TextInputEditText */
     private fun assignIntoView(article: Article?): Boolean {
         if (article == null)
             return false
@@ -96,6 +99,38 @@ class AddArticleActivity : AppCompatActivity() {
     }
 
     private fun insertArticle() {
-        // TODO: Insert into Cache Database (ArticleDatabase)
+        val link = binding.etLink
+        val title = binding.etTitle
+        val tags = binding.etTags
+        val desc = binding.etDesc
+
+        if (link.text.isNullOrEmpty()) {
+            link.error = "This can't be empty"
+            return
+        }
+
+        if (title.text.isNullOrEmpty()) {
+            title.error = "This can't be empty"
+            return
+        }
+
+        if (tags.text.isNullOrEmpty()) {
+            tags.error = "This can't be empty"
+            return
+        }
+
+        if (desc.text.isNullOrEmpty()) {
+            desc.error = "This can't be empty"
+            return
+        }
+
+        viewModel.insertArticle(
+            link.text.toString(),
+            title.text.toString(),
+            desc.text.toString(),
+            tags.text.toString()
+        )
+
+        finish()
     }
 }

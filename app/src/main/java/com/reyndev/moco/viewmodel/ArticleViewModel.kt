@@ -10,6 +10,7 @@ import com.reyndev.moco.model.ArticleDao
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 private const val TAG = "ArticleViewModel"
 
@@ -23,10 +24,11 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
     @SuppressLint("SimpleDateFormat")
     fun insertArticle(link: String, title: String, desc: String, tags: String) {
         val date = Date().time.toString()
-        val article = Article(link, title, desc, date, tags)
-        val dateStr = SimpleDateFormat("dd/MM/yyyy").format(date.toLong())
+        val article = Article(link, title, desc, date, tags.lowercase(Locale.ROOT))
 
-        Log.v(TAG, dateStr.toString())
+        insert(article)
+
+//        Log.v(TAG, dateStr.toString())
     }
 }
 

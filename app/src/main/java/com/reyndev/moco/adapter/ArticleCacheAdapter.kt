@@ -21,7 +21,8 @@ class ArticleCacheAdapter(val onClick: (Article) -> Unit)
         fun bind(article: Article) {
             binding.title.text = article.title
             binding.desc.text = article.desc
-            binding.date.text = SimpleDateFormat("dd MMM yyyy").format(article.date)
+            binding.date.text = java.text.SimpleDateFormat("dd/MM/yyyy")
+                .format(article.date?.toLong())
         }
     }
 
