@@ -71,13 +71,11 @@ class AddArticleActivity : AppCompatActivity() {
             .setTitle("Add from link")
             .setView(input)
             .setPositiveButton("Add") { dialog, type ->
-                if (assignIntoView(extractHtml(input.text.toString()))) {
+                if (assignIntoView(extractHtml(input.text.toString(), this))) {
                     Toast.makeText(this, "Success reading the link", Toast.LENGTH_SHORT).show()
-                    dialog.dismiss()
-                } else {
-                    Toast.makeText(this, "Failed to read the link", Toast.LENGTH_SHORT).show()
-                    dialog.dismiss()
                 }
+
+                dialog.dismiss()
 
                 /* Testing */
 //                extractHtml_test(input.text.toString())
