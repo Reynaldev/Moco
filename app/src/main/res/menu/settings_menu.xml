@@ -7,7 +7,7 @@
         android:icon="@drawable/ic_close" />
 
     <item
-        android:id="@+id/si_sign_out"
+        android:id="@+id/si_sign_user"
         android:title="Sign Out"
         android:icon="@drawable/ic_account_circle" />
 

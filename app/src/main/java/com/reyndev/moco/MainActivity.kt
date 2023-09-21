@@ -1,51 +1,59 @@
 package com.reyndev.moco
 
 import android.content.Intent
-import android.graphics.drawable.Icon
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.core.graphics.drawable.toIcon
-import com.firebase.ui.auth.AuthUI
+import androidx.activity.viewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.play.integrity.internal.c
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.reyndev.moco.adapter.ArticleCacheAdapter
 import com.reyndev.moco.databinding.ActivityMainBinding
+import com.reyndev.moco.viewmodel.ArticleViewModel
+import com.reyndev.moco.viewmodel.ArticleViewModelFactory
+
+private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
-    private val TAG = "MainActivity"
-
     private lateinit var binding: ActivityMainBinding
+
+    private val viewModel: ArticleViewModel by viewModels {
+        ArticleViewModelFactory(
+            (application as MocoApplication).database.articleDao()
+        )
+    }
 
     private lateinit var db: FirebaseDatabase
     private lateinit var auth: FirebaseAuth
+
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<NavigationView>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.navigationView)
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.navigationView)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
         db = Firebase.database
         auth = Firebase.auth
 
         if (auth.currentUser == null) {
-            startActivity(Intent(this, SignInActivity::class.java))
-            finish()
-        }
-
-        if (auth.currentUser!!.isAnonymous) {
             binding.displayName.text = getString(R.string.username, "Anon")
 //            binding.btnSettings.setImageDrawable(getDrawable(R.drawable.ic_account_circle))
         } else {
             binding.displayName.text = getString(R.string.username, auth.currentUser?.displayName)
 //            binding.btnSettings.setImageURI(auth.currentUser!!.photoUrl)
+        }
+
+        binding.recyclerView.adapter = ArticleCacheAdapter { article ->
+            Log.v(TAG, article.title.toString())
         }
 
         binding.btnSettings.setOnClickListener {
@@ -59,7 +67,13 @@ class MainActivity : AppCompatActivity() {
         binding.navigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.si_close -> bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-                R.id.si_sign_out -> signOut()
+                R.id.si_sign_user -> {
+                    if (auth.currentUser == null) {
+                        signIn()
+                    } else {
+                        signOut()
+                    }
+                }
                 else -> bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             }
 
@@ -70,18 +84,31 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        // TODO: Call adapter to start listening for changes
+        // TODO: Sync with FirebaseDatabase if user is not anon
+
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
 
-        // TODO: Call adapter to stop listening for changes
+        // TODO: Sync with FirebaseDatabase if user is not anon
     }
 
-    private fun signOut() {
-        AuthUI.getInstance().signOut(this)
+    // Start SignInActivity to SignIn the user
+    private fun signIn() {
         startActivity(Intent(this, SignInActivity::class.java))
         finish()
+    }
+
+    // Restart activity when the user is SignOut
+    private fun signOut() {
+        auth.signOut()
+        startActivity(intent)
+        finish()
+    }
+
+    // Synchronize cache database with FirebaseDatabase
+    private fun syncDatabase() {
+
     }
 }

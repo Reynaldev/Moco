@@ -2,4 +2,6 @@
     <string name="app_name">Moco</string>
 
     <string name="username">Hello, %s</string>
+    <string name="signin">SignIn</string>
+    <string name="signout">SignOut</string>
 </resources>
