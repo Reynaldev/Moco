@@ -1,12 +1,15 @@
 package com.reyndev.moco
 
-import android.R
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.coroutineScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -18,6 +21,8 @@ import com.reyndev.moco.model.Article
 import com.reyndev.moco.service.extractHtml
 import com.reyndev.moco.viewmodel.ArticleViewModel
 import com.reyndev.moco.viewmodel.ArticleViewModelFactory
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 private const val TAG = "AddArticleActivity"
 private const val ART = "articles"
@@ -57,10 +62,6 @@ class AddArticleActivity : AppCompatActivity() {
         showLinkInputDialog()
     }
 
-    override fun onStart() {
-        super.onStart()
-    }
-
     /* Show link insert MaterialDialog */
     private fun showLinkInputDialog() {
         // EditText to put inside the Dialog
@@ -72,12 +73,15 @@ class AddArticleActivity : AppCompatActivity() {
         MaterialAlertDialogBuilder(this)
             .setTitle("Add from link")
             .setView(input)
-            .setPositiveButton("Add") { dialog, type ->
-                if (assignIntoView(extractHtml(input.text.toString(), this))) {
-                    Toast.makeText(this, "Success reading the link", Toast.LENGTH_SHORT).show()
-                }
-
+            .setPositiveButton("Add") { dialog, _ ->
                 dialog.dismiss()
+                assignIntoView(input.text.toString())
+
+//                if (assignIntoView(extractHtml(input.text.toString(), this))) {
+//                    Toast.makeText(this, "Success reading the link", Toast.LENGTH_SHORT).show()
+//                }
+//
+//                dialog.dismiss()
 
                 /* Testing */
 //                extractHtml_test(input.text.toString())
@@ -87,15 +91,33 @@ class AddArticleActivity : AppCompatActivity() {
     }
 
     /* Assign variable to each TextInputEditText */
-    private fun assignIntoView(article: Article?): Boolean {
-        if (article == null)
-            return false
+//    private fun assignIntoView(article: Article?): Boolean {
+//        if (article == null)
+//            return false
+//
+//        binding.etLink.setText(article.link)
+//        binding.etTitle.setText(article.title)
+//        binding.etDesc.setText(article.desc)
+//
+//        return true
+//    }
 
-        binding.etLink.setText(article.link)
-        binding.etTitle.setText(article.title)
-        binding.etDesc.setText(article.desc)
+    private fun assignIntoView(link: String) {
+        lifecycle.coroutineScope.launch {
+            Log.v(TAG, "Reading..")
 
-        return true
+            toggleLoading(true)
+
+            val article = extractHtml(link, applicationContext)
+
+            binding.etLink.setText(article?.link)
+            binding.etTitle.setText(article?.title)
+            binding.etDesc.setText(article?.desc)
+
+            toggleLoading(false)
+
+            Log.v(TAG, "Finished")
+        }
     }
 
     private fun insertArticle() {
@@ -132,5 +154,12 @@ class AddArticleActivity : AppCompatActivity() {
         )
 
         finish()
+    }
+
+    fun toggleLoading(visible: Boolean) {
+        when (visible) {
+            true -> binding.loading.visibility = View.VISIBLE
+            false -> binding.loading.visibility = View.GONE
+        }
     }
 }

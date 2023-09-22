@@ -2,13 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/si_sign_user"
+        android:title="Sign In"
+        android:icon="@drawable/ic_account_circle" />
+
+    <item
+        android:id="@+id/si_settings"
+        android:title="Settings"
+        android:icon="@drawable/ic_settings" />
+
+    <item
+        android:id="@+id/si_about"
+        android:title="About"
+        android:icon="@drawable/ic_info" />
+
+    <item
         android:id="@+id/si_close"
         android:title="Close"
         android:icon="@drawable/ic_close" />
-
-    <item
-        android:id="@+id/si_sign_user"
-        android:title="Sign Out"
-        android:icon="@drawable/ic_account_circle" />
 
 </menu>
