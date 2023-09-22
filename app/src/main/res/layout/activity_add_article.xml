@@ -21,6 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="textUri"
+            android:singleLine="true"
             android:maxLines="1"
             android:hint="Link" />
 
@@ -37,6 +38,7 @@
             android:id="@+id/et_title"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:singleLine="true"
             android:maxLines="1"
             android:hint="Title" />
 
@@ -54,6 +56,7 @@
             android:id="@+id/et_tags"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:singleLine="true"
             android:maxLines="1"
             android:hint="Tags" />
 
