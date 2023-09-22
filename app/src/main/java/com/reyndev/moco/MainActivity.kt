@@ -4,10 +4,11 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.core.view.get
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -19,7 +20,6 @@ import com.reyndev.moco.adapter.ArticleCacheAdapter
 import com.reyndev.moco.databinding.ActivityMainBinding
 import com.reyndev.moco.viewmodel.ArticleViewModel
 import com.reyndev.moco.viewmodel.ArticleViewModelFactory
-import kotlinx.coroutines.launch
 
 private const val TAG = "MainActivity"
 
@@ -53,11 +53,20 @@ class MainActivity : AppCompatActivity() {
         db = Firebase.database
         auth = Firebase.auth
 
+        /*
+        * Better MenuItem getter
+        *
+        * [Previous] Hardcoded MenuItem -> binding.navigationView.menu[1]
+         */
+        val miSignUser = binding.navigationView.menu.findItem(R.id.si_sign_user)
+
         if (auth.currentUser == null) {
             binding.displayName.text = getString(R.string.username, "Anon")
+            miSignUser.title = "Sign In"
 //            binding.btnSettings.setImageDrawable(getDrawable(R.drawable.ic_account_circle))
         } else {
             binding.displayName.text = getString(R.string.username, auth.currentUser?.displayName)
+            miSignUser.title = "Sign Out"
 //            binding.btnSettings.setImageURI(auth.currentUser!!.photoUrl)
         }
 
