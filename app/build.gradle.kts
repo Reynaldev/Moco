@@ -78,7 +78,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.2")
     implementation("androidx.compose.runtime:runtime-livedata:1.5.1")
 
-    // HTML parser
+    /*
+    * HTML parser
+    * github: https://github.com/skrapeit/skrape.it
+    */
     implementation("it.skrape:skrapeit:1.2.2")
 
     testImplementation("junit:junit:4.13.2")

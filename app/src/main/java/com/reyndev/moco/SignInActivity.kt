@@ -13,8 +13,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
+private const val TAG = "SignInActivity"
+
 class SignInActivity : AppCompatActivity() {
-    private val TAG = "SignInActivity"
 
     private val signIn: ActivityResultLauncher<Intent> = registerForActivityResult(
         FirebaseAuthUIActivityResultContract(), ::onSignInResult
@@ -32,12 +33,15 @@ class SignInActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
+        /*
+        * Show user the Authentication UI and Email provider
+        * Otherwise, go to MainActivity
+         */
         if (auth.currentUser == null) {
             val signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setTheme(R.style.Theme_Moco)
                 .setAvailableProviders(listOf(
-                    AuthUI.IdpConfig.AnonymousBuilder().build(),
                     AuthUI.IdpConfig.EmailBuilder().build(),
                     AuthUI.IdpConfig.GoogleBuilder().build()
                 ))
@@ -50,6 +54,9 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
+    /*
+    * Callback function to get the authentication result
+     */
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == RESULT_OK) {
             Toast.makeText(this, "Sign in success", Toast.LENGTH_SHORT).show()

@@ -16,9 +16,7 @@ import it.skrape.selects.html5.p
 
 private const val EXTRACT_HTML_TAG = "ExtractHTML"
 
-/* github: https://github.com/skrapeit/skrape.it */
 // Function to scrap HTML from the given link
-
 suspend fun extractHtml(link: String, ctx: Context): Article? {
     try {
         return skrape(AsyncFetcher) {

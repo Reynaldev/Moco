@@ -22,7 +22,9 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
 
     private val _tags = MutableLiveData<List<String>>()
 
-    private var articles = dao.getArticles().asLiveData()
+    // This shouldn't be modified, it's used as a copy.
+    // See more at getArticles() method in this class
+    private val articles = dao.getArticles().asLiveData()
 
     private fun insert(article: Article) {
         viewModelScope.launch {
