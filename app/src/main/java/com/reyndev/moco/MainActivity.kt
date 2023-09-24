@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.widget.Toast
 import androidx.activity.viewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -19,6 +18,10 @@ import com.reyndev.moco.databinding.ActivityMainBinding
 import com.reyndev.moco.viewmodel.ArticleViewModel
 import com.reyndev.moco.viewmodel.ArticleViewModelFactory
 
+/*
+* Debugging tag, please don't remove.
+* Rule applies to every class that has it
+*/
 private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
@@ -42,8 +45,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         /*
-        * NavigationView, try it by tapping on user icon (top-right) button,
-        * Drag down the view or tap the close menu to close.
+        * BottomSheetBehavior for the NavigationView,
+        * try it by tapping on user icon (top-right) button,
+        * Drag down the view or tap the close button to close.
         * */
         bottomSheetBehavior = BottomSheetBehavior.from(binding.navigationView)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
@@ -70,14 +74,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Adapter and RecyclerView setup
-        adapter = ArticleCacheAdapter { article ->
-            // TODO: Set intent to access the link by browser
-            Toast.makeText(this, article.title.toString(), Toast.LENGTH_SHORT).show()
-        }
+        adapter = ArticleCacheAdapter(this)
         binding.recyclerView.adapter = adapter
         updateAdapter()
 
-        // Observe
+        /*
+        * Observe the search variable of ArticleViewModel, so we can update the adapter
+        * based on text searched. See more inside the ArticleViewModel
+        */
         viewModel.search.observe(this) {
             updateAdapter()
         }
@@ -98,9 +102,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.fabAdd.setOnClickListener {
-            startActivity(Intent(this, AddArticleActivity::class.java))
+            val intent = Intent(this, ArticleActivity::class.java)
+            intent.putExtra(ArticleActivity.EXTRA_TYPE, ArticleActivityType.ADD.name)
+            startActivity(intent)
         }
 
+        // Events based on which MenuItem is clicked
         binding.navigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.si_close -> bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
@@ -137,11 +144,11 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
-    // Restart activity when the user is SignOut
+    // Sign out and restart activity
     private fun signOut() {
         auth.signOut()
-        startActivity(intent)
         finish()
+        startActivity(intent)
     }
 
     // Synchronize cache database with FirebaseDatabase
@@ -149,6 +156,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    // Update ArticleCacheAdapter
     private fun updateAdapter() {
         viewModel.getArticles().observe(this) {
             adapter.submitList(it)

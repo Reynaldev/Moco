@@ -1,7 +1,19 @@
 <resources>
     <string name="app_name">Moco</string>
 
+    <!-- MainActivity -->
     <string name="username">Hello, %s</string>
+
     <string name="signin">SignIn</string>
     <string name="signout">SignOut</string>
+    <!-- MainActivity -->
+
+    <!-- DetailArticle -->
+    <string name="btn_cancel">Cancel</string>
+
+    <!-- Add/Edit button -->
+    <string name="btn_submit_add">Add</string>
+    <string name="btn_submit_edit">Edit</string>
+
+    <!-- DetailArticle -->
 </resources>

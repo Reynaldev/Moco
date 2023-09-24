@@ -22,7 +22,7 @@
             android:name=".SignInActivity"
             android:exported="false" />
         <activity
-            android:name=".AddArticleActivity"
+            android:name=".ArticleActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

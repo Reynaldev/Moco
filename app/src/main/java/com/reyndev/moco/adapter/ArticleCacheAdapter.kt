@@ -1,27 +1,32 @@
 package com.reyndev.moco.adapter
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.icu.text.SimpleDateFormat
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.reyndev.moco.ArticleActivity
+import com.reyndev.moco.ArticleActivityType
 import com.reyndev.moco.databinding.ArticleListItemBinding
 import com.reyndev.moco.model.Article
+import com.reyndev.moco.viewmodel.ArticleViewModel
 
 private const val TAG = "ArticleCacheAdapter"
 
-class ArticleCacheAdapter(private val onClick: (Article) -> Unit)
+class ArticleCacheAdapter(private val ctx: Context)
     : ListAdapter<Article, ArticleCacheAdapter.ArticleViewHolder>(DiffCallback) {
 
-    class ArticleViewHolder(private val binding: ArticleListItemBinding)
-        : RecyclerView.ViewHolder(binding.root) {
+    class ArticleViewHolder(
+            private val binding: ArticleListItemBinding,
+            private val ctx: Context
+        ) : RecyclerView.ViewHolder(binding.root) {
 
         var show = false
 
@@ -31,6 +36,17 @@ class ArticleCacheAdapter(private val onClick: (Article) -> Unit)
             binding.desc.text = article.desc
             binding.date.text = SimpleDateFormat("dd/MM/yyyy")
                 .format(article.date?.toLong())
+
+            binding.delete.setOnClickListener {
+
+            }
+
+            binding.edit.setOnClickListener {
+                val intent = Intent(ctx, ArticleActivity::class.java)
+                intent.putExtra(ArticleActivity.EXTRA_TYPE, ArticleActivityType.EDIT.name)
+                intent.putExtra(ArticleActivity.EXTRA_ARTICLE, article.id)
+                ctx.startActivity(intent)
+            }
         }
 
         /*
@@ -54,7 +70,8 @@ class ArticleCacheAdapter(private val onClick: (Article) -> Unit)
         return ArticleViewHolder(
             ArticleListItemBinding.inflate(
                 LayoutInflater.from(parent.context)
-            )
+            ),
+            ctx
         )
     }
 
@@ -64,7 +81,7 @@ class ArticleCacheAdapter(private val onClick: (Article) -> Unit)
 
         /* Bind click listener to onClick variable */
         itemView.setOnClickListener {
-            onClick(item)
+            Toast.makeText(ctx, item.title, Toast.LENGTH_SHORT).show()
         }
 
         itemView.setOnLongClickListener {
@@ -88,7 +105,6 @@ class ArticleCacheAdapter(private val onClick: (Article) -> Unit)
         itemView.layoutParams = layoutParams
 
         if (position == (itemCount - 1)) {
-//            Log.v(TAG, "Params: ${itemView.layoutParams}")
             layoutParams.setMargins(marginValue, marginValue, marginValue, marginValue * 10)
             itemView.layoutParams = layoutParams
         }

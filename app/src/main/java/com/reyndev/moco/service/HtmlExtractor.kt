@@ -3,11 +3,9 @@ package com.reyndev.moco.service
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import com.reyndev.moco.MocoApplication
 import com.reyndev.moco.model.Article
 import it.skrape.core.document
 import it.skrape.fetcher.AsyncFetcher
-import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.response
 import it.skrape.fetcher.skrape
 import it.skrape.selects.eachText
@@ -27,17 +25,17 @@ suspend fun extractHtml(link: String, ctx: Context): Article? {
             // Get the HTML body and assign it to each variable in Article data class
             response {
                 Article(
-                    link,
-                    document.h1 { findFirst { text } },     // Get the text of the first <H1> tag
-                    document.p {              // Get every <p> text
+                    link = link,
+                    title = document.h1 { findFirst { text } },     // Get the text of the first <H1> tag
+                    desc =  document.p {              // Get every <p> text
                         findAll {
                             eachText
                                 .filter { it.length > 50 }  // Get text where length is more than 50
-                                .subList(0, 3)              // SubList to only 3 elements
+                                .subList(0, 3)              // Take only first three element
                         }
                     }.toString(),
-                    null,   // Null for now, will be assigned later
-                    null,   // Null for now, will be assigned later
+                    tags = null,   // Null for now, will be assigned later
+                    date = null,   // Null for now, will be assigned later
                 )
             }
         }
