@@ -1,12 +1,14 @@
 package com.reyndev.moco.adapter
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-import androidx.core.view.setMargins
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -21,12 +23,27 @@ class ArticleCacheAdapter(private val onClick: (Article) -> Unit)
     class ArticleViewHolder(private val binding: ArticleListItemBinding)
         : RecyclerView.ViewHolder(binding.root) {
 
+        var show = false
+
         @SuppressLint("SimpleDateFormat")
         fun bind(article: Article) {
             binding.title.text = article.title
             binding.desc.text = article.desc
             binding.date.text = SimpleDateFormat("dd/MM/yyyy")
                 .format(article.date?.toLong())
+        }
+
+        /*
+        * Show details for the view, by showing edit button and share button
+        * Try it by long tap a view
+         */
+        fun showDetail() {
+            show = !show
+
+            when (show) {
+                true -> binding.details.visibility = View.VISIBLE
+                false -> binding.details.visibility = View.GONE
+            }
         }
     }
 
@@ -48,6 +65,12 @@ class ArticleCacheAdapter(private val onClick: (Article) -> Unit)
         /* Bind click listener to onClick variable */
         itemView.setOnClickListener {
             onClick(item)
+        }
+
+        itemView.setOnLongClickListener {
+            holder.showDetail()
+
+            true
         }
 
         /*
