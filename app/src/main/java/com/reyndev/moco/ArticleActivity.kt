@@ -30,7 +30,7 @@ enum class ArticleActivityType {
 
 class ArticleActivity : AppCompatActivity() {
     private lateinit var binding: ActivityArticleBinding
-    private lateinit var activityType: ArticleActivityType
+//    private lateinit var activityType: ArticleActivityType
 
     private val viewModel: ArticleViewModel by viewModels {
         ArticleViewModelFactory(
@@ -50,7 +50,8 @@ class ArticleActivity : AppCompatActivity() {
         * Get the ArticleActivityType enum name from the intent
         * And assign it to the local variable
         */
-        activityType = ArticleActivityType.valueOf(intent.extras?.getString(EXTRA_TYPE)!!)
+        val activityType = ArticleActivityType.valueOf(intent.extras?.getString(EXTRA_TYPE)!!)
+        val articleId = intent.extras?.getInt(EXTRA_ARTICLE)
 
         Log.v(TAG, "Intent: ${intent}\nType: ${activityType}")
 
@@ -68,8 +69,6 @@ class ArticleActivity : AppCompatActivity() {
                     showLinkInputDialog()
                 }
                 ArticleActivityType.EDIT -> {
-                    val articleId = intent.extras?.getInt(EXTRA_ARTICLE)
-
                     viewModel.getArticleSpecified(articleId!!)
                         .observe(this@ArticleActivity) { article ->
                             etLink.setText(article.link)
@@ -100,7 +99,7 @@ class ArticleActivity : AppCompatActivity() {
                 }
             }
 
-            /* Global usage / for use whether it's in EDIT or ADD mode */
+            /* For views and variables whether it's in EDIT or ADD mode */
 
             elLink.setEndIconOnClickListener {
                 showLinkInputDialog()

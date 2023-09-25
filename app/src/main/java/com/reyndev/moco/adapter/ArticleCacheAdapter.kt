@@ -7,6 +7,7 @@ import android.icu.text.SimpleDateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
 import androidx.recyclerview.widget.DiffUtil
@@ -14,19 +15,29 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.reyndev.moco.ArticleActivity
 import com.reyndev.moco.ArticleActivityType
+import com.reyndev.moco.R
 import com.reyndev.moco.databinding.ArticleListItemBinding
 import com.reyndev.moco.model.Article
 import com.reyndev.moco.viewmodel.ArticleViewModel
 
 private const val TAG = "ArticleCacheAdapter"
 
-class ArticleCacheAdapter(private val ctx: Context)
-    : ListAdapter<Article, ArticleCacheAdapter.ArticleViewHolder>(DiffCallback) {
+enum class ArticleViewHolderButton {
+    SHARE,
+    DELETE,
+    EDIT
+}
 
-    class ArticleViewHolder(
-            private val binding: ArticleListItemBinding,
-            private val ctx: Context
-        ) : RecyclerView.ViewHolder(binding.root) {
+class ArticleCacheAdapter(
+    private val onClick: (Article) -> Unit,
+    private val onLongClick: (Article) -> Unit,
+    private val onShare: (Article) -> Unit,
+    private val onDelete: (Article) -> Unit,
+    private val onEdit: (Article) -> Unit
+) : ListAdapter<Article, ArticleCacheAdapter.ArticleViewHolder>(DiffCallback) {
+
+    class ArticleViewHolder(private val binding: ArticleListItemBinding)
+        : RecyclerView.ViewHolder(binding.root) {
 
         var show = false
 
@@ -36,17 +47,6 @@ class ArticleCacheAdapter(private val ctx: Context)
             binding.desc.text = article.desc
             binding.date.text = SimpleDateFormat("dd/MM/yyyy")
                 .format(article.date?.toLong())
-
-            binding.delete.setOnClickListener {
-
-            }
-
-            binding.edit.setOnClickListener {
-                val intent = Intent(ctx, ArticleActivity::class.java)
-                intent.putExtra(ArticleActivity.EXTRA_TYPE, ArticleActivityType.EDIT.name)
-                intent.putExtra(ArticleActivity.EXTRA_ARTICLE, article.id)
-                ctx.startActivity(intent)
-            }
         }
 
         /*
@@ -61,6 +61,27 @@ class ArticleCacheAdapter(private val ctx: Context)
                 false -> binding.details.visibility = View.GONE
             }
         }
+
+        /*
+        * Button bind
+        */
+        fun bindButton(
+            article: Article,
+            btn: ArticleViewHolderButton,
+            clickListener: (Article) -> Unit
+        ) {
+            when (btn) {
+                ArticleViewHolderButton.SHARE -> binding.share.setOnClickListener {
+                    clickListener(article)
+                }
+                ArticleViewHolderButton.DELETE -> binding.delete.setOnClickListener {
+                    clickListener(article)
+                }
+                ArticleViewHolderButton.EDIT -> binding.edit.setOnClickListener {
+                    clickListener(article)
+                }
+            }
+        }
     }
 
     override fun onCreateViewHolder(
@@ -70,8 +91,7 @@ class ArticleCacheAdapter(private val ctx: Context)
         return ArticleViewHolder(
             ArticleListItemBinding.inflate(
                 LayoutInflater.from(parent.context)
-            ),
-            ctx
+            )
         )
     }
 
@@ -81,14 +101,23 @@ class ArticleCacheAdapter(private val ctx: Context)
 
         /* Bind click listener to onClick variable */
         itemView.setOnClickListener {
-            Toast.makeText(ctx, item.title, Toast.LENGTH_SHORT).show()
+//            Toast.makeText(ctx, item.title, Toast.LENGTH_SHORT).show()
+            onClick(item)
         }
 
         itemView.setOnLongClickListener {
+            onLongClick(item)
             holder.showDetail()
 
             true
         }
+
+        /*
+        * Bind every button
+        */
+        holder.bindButton(item, ArticleViewHolderButton.SHARE, onShare)
+        holder.bindButton(item, ArticleViewHolderButton.DELETE, onDelete)
+        holder.bindButton(item, ArticleViewHolderButton.EDIT, onEdit)
 
         /*
         * Assign margin to the view.

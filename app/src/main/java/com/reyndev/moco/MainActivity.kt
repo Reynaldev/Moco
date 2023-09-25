@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.Toast
 import androidx.activity.viewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -74,7 +75,31 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Adapter and RecyclerView setup
-        adapter = ArticleCacheAdapter(this)
+        adapter = ArticleCacheAdapter(
+            /* onClick */
+            {
+                Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
+            },
+            /* onLongClick */
+            {},
+            /* onShare | On share button clicked */
+            {
+                Toast.makeText(this, "Shared", Toast.LENGTH_SHORT).show()
+            },
+            /* onDelete | On delete button clicked */
+            {
+                viewModel.deleteArticle(it)
+
+                Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show()
+            },
+            /* onEdit | On edit button clicked */
+            {
+                val intent = Intent(this, ArticleActivity::class.java)
+                intent.putExtra(ArticleActivity.EXTRA_TYPE, ArticleActivityType.EDIT.name)
+                intent.putExtra(ArticleActivity.EXTRA_ARTICLE, it.id)
+                startActivity(intent)
+            }
+        )
         binding.recyclerView.adapter = adapter
         updateAdapter()
 
