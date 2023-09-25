@@ -43,21 +43,45 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
         _search.value = input
     }
 
-    fun insertArticle(link: String, title: String, desc: String, tags: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            dao.insert(getArticleAsObject(link, title, desc, tags))
+    fun insertArticle(link: String, title: String, desc: String, tags: String): Boolean {
+        return try {
+            viewModelScope.launch(Dispatchers.IO) {
+                dao.insert(getArticleAsObject(link, title, desc, tags))
+            }
+
+            true
+        } catch (e: Exception) {
+            Log.wtf(TAG, "Cannot insert ${title}")
+            e.printStackTrace()
+            false
         }
     }
 
-    fun updateArticle(article: Article) {
-        viewModelScope.launch(Dispatchers.IO) {
-            dao.update(article)
+    fun updateArticle(article: Article): Boolean {
+        return try {
+            viewModelScope.launch(Dispatchers.IO) {
+                dao.update(article)
+            }
+
+            true
+        } catch (e: Exception) {
+            Log.wtf(TAG, "Cannot update ${article.title} with id of ${article.id}")
+            e.printStackTrace()
+            false
         }
     }
 
-    fun deleteArticle(article: Article) {
-        viewModelScope.launch(Dispatchers.IO) {
-            dao.delete(article)
+    fun deleteArticle(article: Article): Boolean {
+        return try {
+            viewModelScope.launch(Dispatchers.IO) {
+                dao.delete(article)
+            }
+
+            true
+        } catch (e: Exception) {
+            Log.wtf(TAG, "Cannot delete ${article.title} with id of ${article.id}")
+            e.printStackTrace()
+            false
         }
     }
 

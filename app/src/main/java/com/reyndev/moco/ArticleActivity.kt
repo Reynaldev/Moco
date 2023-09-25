@@ -60,6 +60,7 @@ class ArticleActivity : AppCompatActivity() {
 
         binding.apply {
             when (activityType) {
+                /* Show this if we want to ADD an article */
                 ArticleActivityType.ADD -> {
                     btnSubmit.setOnClickListener {
                         if (isValidInput())
@@ -68,17 +69,25 @@ class ArticleActivity : AppCompatActivity() {
 
                     showLinkInputDialog()
                 }
+                /* Show this if we want to EDIT an article */
                 ArticleActivityType.EDIT -> {
+                    /* Get the article from the viewmodel */
                     viewModel.getArticleSpecified(articleId!!)
                         .observe(this@ArticleActivity) { article ->
+                            /* Bind to each TextField */
                             etLink.setText(article.link)
                             etTitle.setText(article.title)
                             etTags.setText(article.tags)
                             etDesc.setText(article.desc)
 
+                            /*
+                            * Submit the edited article into the viewmodel, if
+                            * only the input is valid.
+                            */
                             btnSubmit.setOnClickListener {
                                 if (isValidInput()) {
-                                    viewModel.updateArticle(
+                                    /* Update */
+                                    if (viewModel.updateArticle(
                                         Article(
                                             article.id,
                                             etLink.text.toString(),
@@ -86,8 +95,22 @@ class ArticleActivity : AppCompatActivity() {
                                             etDesc.text.toString(),
                                             article.date,
                                             etTags.text.toString(),
-                                        )
-                                    )
+                                        ))
+                                    ){
+                                        // If the update is success
+                                        Toast.makeText(
+                                            this@ArticleActivity,
+                                            "Article updated",
+                                            Toast.LENGTH_SHORT)
+                                            .show()
+                                    } else {
+                                        // If the update is failed
+                                        Toast.makeText(
+                                            this@ArticleActivity,
+                                            "Failed to update article",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
 
                                     finish()
                                 }
