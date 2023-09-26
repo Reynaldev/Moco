@@ -127,6 +127,11 @@ class ArticleCacheAdapter(
         *
         * If it's the last item, we're gonna add more bottom margin so the view doesn't
         * get blocked by "Add" FloatingActionButton.
+        *
+        * Note:
+        * This will cause a bug where the added item will be far below
+        * the item with multiplied margin (In this case is the last item in position).
+        * To fix this, just restart the app and it will fixed itself
         * */
         val marginValue = 50
         val layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)

@@ -1,6 +1,7 @@
 package com.reyndev.moco
 
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -78,7 +79,10 @@ class MainActivity : AppCompatActivity() {
         adapter = ArticleCacheAdapter(
             /* onClick */
             {
-                Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.link))
+                startActivity(intent)
+
+//                Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
             },
             /* onLongClick */
             {},
