@@ -1,5 +1,8 @@
 package com.reyndev.moco
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -86,7 +89,16 @@ class MainActivity : AppCompatActivity() {
 //                Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
             },
             /* onLongClick */
-            {},
+            {
+                /*
+                * Create a copy text mechanism
+                */
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("URL", it.link)
+                clipboard.setPrimaryClip(clip)
+
+                Toast.makeText(this, "Link copied to clipboard", Toast.LENGTH_SHORT).show()
+            },
             /* onShare | On share button clicked */
             {
                 /*
@@ -94,13 +106,26 @@ class MainActivity : AppCompatActivity() {
                 */
                 try {
                     /*
+                    * Format the text that will be shared
+                    */
+                    val content = getString(
+                        R.string.share_article,
+                        it.title,
+                        it.desc,
+                        it.link
+                    )
+
+
+                    /*
                     * Create the intent with action Intent.ACTION_SEND
-                    * with data of the current article link
+                    * with extras of the current article link and title
                     * and type of "text/plain"
                     */
                     val intentShare = Intent(Intent.ACTION_SEND)
                         .apply {
-                            putExtra(Intent.EXTRA_TEXT, it.link)
+                            putExtra(Intent.EXTRA_TEXT, content)
+                            putExtra(Intent.EXTRA_TITLE, it.title)
+                            clipData = ClipData.newPlainText("Copy", it.link)
                             type = "text/plain"
                         }
 
@@ -113,6 +138,8 @@ class MainActivity : AppCompatActivity() {
                     * Start the intent, try it by tapping the share button
                     */
                     startActivity(intentChooser)
+
+//                    Log.v(TAG, content)
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Toast.makeText(this, "No suitable app found", Toast.LENGTH_SHORT).show()
@@ -129,8 +156,11 @@ class MainActivity : AppCompatActivity() {
             /* onEdit | On edit button clicked */
             {
                 val intent = Intent(this, ArticleActivity::class.java)
-                intent.putExtra(ArticleActivity.EXTRA_TYPE, ArticleActivityType.EDIT.name)
-                intent.putExtra(ArticleActivity.EXTRA_ARTICLE, it.id)
+                    .apply {
+                        putExtra(ArticleActivity.EXTRA_TYPE, ArticleActivityType.EDIT.name)
+                        putExtra(ArticleActivity.EXTRA_ARTICLE, it.id)
+                    }
+
                 startActivity(intent)
             }
         )

@@ -6,6 +6,8 @@
 
     <string name="signin">SignIn</string>
     <string name="signout">SignOut</string>
+
+    <string name="share_article">%s\n\n%s\n\nSource: %s</string>
     <!-- MainActivity -->
 
     <!-- DetailArticle -->
