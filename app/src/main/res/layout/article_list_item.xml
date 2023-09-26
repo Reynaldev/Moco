@@ -68,6 +68,13 @@
 
             <ImageButton
                 style="@style/Widget.Material3.Button.IconButton"
+                android:id="@+id/copy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_copy" />
+
+            <ImageButton
+                style="@style/Widget.Material3.Button.IconButton"
                 android:id="@+id/share"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -1,5 +1,7 @@
 package com.reyndev.moco
 
+import android.app.Activity
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -50,75 +52,98 @@ class ArticleActivity : AppCompatActivity() {
         * Get the ArticleActivityType enum name from the intent
         * And assign it to the local variable
         */
-        val activityType = ArticleActivityType.valueOf(intent.extras?.getString(EXTRA_TYPE)!!)
-        val articleId = intent.extras?.getInt(EXTRA_ARTICLE)
+//        val activityType = ArticleActivityType.valueOf(intent.extras?.getString(EXTRA_TYPE)!!)
+//        val articleId = intent.extras?.getInt(EXTRA_ARTICLE)
 
-        Log.v(TAG, "Intent: ${intent}\nType: ${activityType}")
+//        Log.v(TAG, "Intent: ${intent}\nType: ${activityType}")
 
         db = Firebase.database
         auth = Firebase.auth
 
         binding.apply {
-            when (activityType) {
-                /* Show this if we want to ADD an article */
-                ArticleActivityType.ADD -> {
-                    btnSubmit.setOnClickListener {
-                        if (isValidInput())
-                            insertArticle()
-                    }
-
-                    showLinkInputDialog()
+            /*
+            * Get intent from other app.
+            * Otherwise, get intent from previous Activity
+            */
+            if (intent?.action == Intent.ACTION_SEND) {
+                intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
+                    assignIntoView(it)
                 }
-                /* Show this if we want to EDIT an article */
-                ArticleActivityType.EDIT -> {
-                    /* Get the article from the viewmodel */
-                    viewModel.getArticleSpecified(articleId!!)
-                        .observe(this@ArticleActivity) { article ->
-                            /* Bind to each TextField */
-                            etLink.setText(article.link)
-                            etTitle.setText(article.title)
-                            etTags.setText(article.tags)
-                            etDesc.setText(article.desc)
 
-                            /*
+                btnSubmit.setOnClickListener {
+                    if (isValidInput())
+                        insertArticle()
+                }
+            } else {
+                val activityType = ArticleActivityType.valueOf(intent.extras?.getString(EXTRA_TYPE)!!)
+                val articleId = intent.extras?.getInt(EXTRA_ARTICLE)
+
+                when (activityType) {
+                    /* Show this if we want to ADD an article */
+                    ArticleActivityType.ADD -> {
+                        val articleLink = intent.extras?.getString(EXTRA_LINK)
+                        if (!articleLink.isNullOrEmpty())
+                            assignIntoView(articleLink)
+
+                        btnSubmit.setOnClickListener {
+                            if (isValidInput())
+                                insertArticle()
+                        }
+
+                        showLinkInputDialog()
+                    }
+                    /* Show this if we want to EDIT an article */
+                    ArticleActivityType.EDIT -> {
+                        /* Get the article from the viewmodel */
+                        viewModel.getArticleSpecified(articleId!!)
+                            .observe(this@ArticleActivity) { article ->
+                                /* Bind to each TextField */
+                                etLink.setText(article.link)
+                                etTitle.setText(article.title)
+                                etTags.setText(article.tags)
+                                etDesc.setText(article.desc)
+
+                                /*
                             * Submit the edited article into the viewmodel, if
                             * only the input is valid.
                             */
-                            btnSubmit.setOnClickListener {
-                                if (isValidInput()) {
-                                    /* Update */
-                                    if (viewModel.updateArticle(
-                                        Article(
-                                            article.id,
-                                            etLink.text.toString(),
-                                            etTitle.text.toString(),
-                                            etDesc.text.toString(),
-                                            article.date,
-                                            etTags.text.toString(),
-                                        ))
-                                    ){
-                                        // If the update is success
-                                        Toast.makeText(
-                                            this@ArticleActivity,
-                                            "Article updated",
-                                            Toast.LENGTH_SHORT)
-                                            .show()
-                                    } else {
-                                        // If the update is failed
-                                        Toast.makeText(
-                                            this@ArticleActivity,
-                                            "Failed to update article",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
+                                btnSubmit.setOnClickListener {
+                                    if (isValidInput()) {
+                                        /* Update */
+                                        if (viewModel.updateArticle(
+                                                Article(
+                                                    article.id,
+                                                    etLink.text.toString(),
+                                                    etTitle.text.toString(),
+                                                    etDesc.text.toString(),
+                                                    article.date,
+                                                    etTags.text.toString(),
+                                                )
+                                            )
+                                        ) {
+                                            // If the update is success
+                                            Toast.makeText(
+                                                this@ArticleActivity,
+                                                "Article updated",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                                .show()
+                                        } else {
+                                            // If the update is failed
+                                            Toast.makeText(
+                                                this@ArticleActivity,
+                                                "Failed to update article",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
 
-                                    finish()
+                                        finish()
+                                    }
                                 }
                             }
+
+                        btnSubmit.setText(R.string.btn_submit_edit)
                     }
-
-                    btnSubmit.setText(R.string.btn_submit_edit)
-
                 }
             }
 
@@ -219,5 +244,6 @@ class ArticleActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_TYPE = "detail"
         const val EXTRA_ARTICLE = "article"
+        const val EXTRA_LINK = "link"
     }
 }

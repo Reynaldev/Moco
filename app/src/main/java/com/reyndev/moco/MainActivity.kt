@@ -50,6 +50,15 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (intent?.action == Intent.ACTION_SEND) {
+            val intentData = Intent(this, ArticleActivity::class.java)
+            intentData.putExtra(ArticleActivity.EXTRA_TYPE, ArticleActivityType.ADD.name)
+            intentData.putExtra(ArticleActivity.EXTRA_LINK, intent.toString())
+            startActivity(intentData)
+
+            Log.v(TAG, "Oh! A link from the outsider, let's see...")
+        }
+
         /*
         * BottomSheetBehavior for the NavigationView,
         * try it by tapping on user icon (top-right) button,
@@ -72,29 +81,29 @@ class MainActivity : AppCompatActivity() {
         if (auth.currentUser == null) {
             binding.displayName.text = getString(R.string.username, "Anon")
             miSignUser.title = "Sign In"
-//            binding.btnSettings.setImageDrawable(getDrawable(R.drawable.ic_account_circle))
         } else {
             binding.displayName.text = getString(R.string.username, auth.currentUser?.displayName)
             miSignUser.title = "Sign Out"
-//            binding.btnSettings.setImageURI(auth.currentUser!!.photoUrl)
         }
 
         // Adapter and RecyclerView setup
         adapter = ArticleCacheAdapter(
             /* onClick */
             {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.link))
-                startActivity(intent)
+                val intentData = Intent(Intent.ACTION_VIEW, Uri.parse(it.link))
+                startActivity(intentData)
 
 //                Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
             },
             /* onLongClick */
+            {},
+            /* onCopy | On Copy button clicked */
             {
-                /*
-                * Create a copy text mechanism
-                */
+                /* Create a Clipboard */
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                /* Create a ClipData and copy the article's link */
                 val clip = ClipData.newPlainText("URL", it.link)
+                /* Set primary clip of the Clipboard as defined ClipData above */
                 clipboard.setPrimaryClip(clip)
 
                 Toast.makeText(this, "Link copied to clipboard", Toast.LENGTH_SHORT).show()
@@ -115,7 +124,6 @@ class MainActivity : AppCompatActivity() {
                         it.link
                     )
 
-
                     /*
                     * Create the intent with action Intent.ACTION_SEND
                     * with extras of the current article link and title
@@ -125,7 +133,7 @@ class MainActivity : AppCompatActivity() {
                         .apply {
                             putExtra(Intent.EXTRA_TEXT, content)
                             putExtra(Intent.EXTRA_TITLE, it.title)
-                            clipData = ClipData.newPlainText("Copy", it.link)
+                            putExtra(Intent.EXTRA_REFERRER, Uri.parse(it.link))
                             type = "text/plain"
                         }
 
@@ -135,7 +143,7 @@ class MainActivity : AppCompatActivity() {
                     val intentChooser = Intent.createChooser(intentShare, "Share this article")
 
                     /*
-                    * Start the intent, try it by tapping the share button
+                    * Show the app chooser, try it by tapping the share button
                     */
                     startActivity(intentChooser)
 
@@ -155,13 +163,13 @@ class MainActivity : AppCompatActivity() {
             },
             /* onEdit | On edit button clicked */
             {
-                val intent = Intent(this, ArticleActivity::class.java)
+                val intentData = Intent(this, ArticleActivity::class.java)
                     .apply {
                         putExtra(ArticleActivity.EXTRA_TYPE, ArticleActivityType.EDIT.name)
                         putExtra(ArticleActivity.EXTRA_ARTICLE, it.id)
                     }
 
-                startActivity(intent)
+                startActivity(intentData)
             }
         )
         binding.recyclerView.adapter = adapter
@@ -186,14 +194,15 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        /* Show the navigationView when account button is clicked */
         binding.btnSettings.setOnClickListener {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
         binding.fabAdd.setOnClickListener {
-            val intent = Intent(this, ArticleActivity::class.java)
-            intent.putExtra(ArticleActivity.EXTRA_TYPE, ArticleActivityType.ADD.name)
-            startActivity(intent)
+            val intentData = Intent(this, ArticleActivity::class.java)
+            intentData.putExtra(ArticleActivity.EXTRA_TYPE, ArticleActivityType.ADD.name)
+            startActivity(intentData)
         }
 
         // Events based on which MenuItem is clicked

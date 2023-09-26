@@ -24,6 +24,7 @@ import com.reyndev.moco.viewmodel.ArticleViewModel
 private const val TAG = "ArticleCacheAdapter"
 
 enum class ArticleViewHolderButton {
+    COPY,
     SHARE,
     DELETE,
     EDIT
@@ -32,6 +33,7 @@ enum class ArticleViewHolderButton {
 class ArticleCacheAdapter(
     private val onClick: (Article) -> Unit,
     private val onLongClick: (Article) -> Unit,
+    private val onCopy: (Article) -> Unit,
     private val onShare: (Article) -> Unit,
     private val onDelete: (Article) -> Unit,
     private val onEdit: (Article) -> Unit
@@ -72,6 +74,9 @@ class ArticleCacheAdapter(
             clickListener: (Article) -> Unit
         ) {
             when (btn) {
+                ArticleViewHolderButton.COPY -> binding.copy.setOnClickListener {
+                    clickListener(article)
+                }
                 ArticleViewHolderButton.SHARE -> binding.share.setOnClickListener {
                     clickListener(article)
                 }
@@ -118,6 +123,7 @@ class ArticleCacheAdapter(
         /*
         * Bind every button
         */
+        holder.bindButton(item, ArticleViewHolderButton.COPY, onCopy)
         holder.bindButton(item, ArticleViewHolderButton.SHARE, onShare)
         holder.bindButton(item, ArticleViewHolderButton.DELETE, onDelete)
         holder.bindButton(item, ArticleViewHolderButton.EDIT, onEdit)
