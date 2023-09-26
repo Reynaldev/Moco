@@ -42,6 +42,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var db: FirebaseDatabase
     private lateinit var auth: FirebaseAuth
 
+    /**
+     * BottomSheetBehavior for the [navigationView],
+     * try it by tapping on user icon (top-right) button,
+     * Drag down the view or tap the close button to close.
+     */
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<NavigationView>
     private lateinit var adapter: ArticleCacheAdapter
 
@@ -59,11 +64,7 @@ class MainActivity : AppCompatActivity() {
             Log.v(TAG, "Oh! A link from the outsider, let's see...")
         }
 
-        /*
-        * BottomSheetBehavior for the NavigationView,
-        * try it by tapping on user icon (top-right) button,
-        * Drag down the view or tap the close button to close.
-        * */
+        /** BottomSheetBehavior implementation */
         bottomSheetBehavior = BottomSheetBehavior.from(binding.navigationView)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
@@ -71,10 +72,10 @@ class MainActivity : AppCompatActivity() {
         db = Firebase.database
         auth = Firebase.auth
 
-        /*
+        /**
         * Better get MenuItem
         *
-        * [Previous] Hardcoded MenuItem -> binding.navigationView.menu[1]
+        * Hardcoded MenuItem -> binding.navigationView.menu[1]
          */
         val miSignUser = binding.navigationView.menu.findItem(R.id.si_sign_user)
 
@@ -88,16 +89,28 @@ class MainActivity : AppCompatActivity() {
 
         // Adapter and RecyclerView setup
         adapter = ArticleCacheAdapter(
-            /* onClick */
+            /**
+             * onClick
+             *
+             * @see ArticleCacheAdapter.onClick
+             * */
             {
                 val intentData = Intent(Intent.ACTION_VIEW, Uri.parse(it.link))
                 startActivity(intentData)
 
 //                Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
             },
-            /* onLongClick */
+            /**
+             * onLongClick
+             *
+             * @see ArticleCacheAdapter.onLongClick
+             * */
             {},
-            /* onCopy | On Copy button clicked */
+            /**
+             * onCopy | On Copy button clicked
+             *
+             * @see ArticleCacheAdapter.onCopy
+             * */
             {
                 /* Create a Clipboard */
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -108,13 +121,17 @@ class MainActivity : AppCompatActivity() {
 
                 Toast.makeText(this, "Link copied to clipboard", Toast.LENGTH_SHORT).show()
             },
-            /* onShare | On share button clicked */
+            /**
+             * onShare | On share button clicked
+             *
+             * @see ArticleCacheAdapter.onShare
+             * */
             {
-                /*
+                /**
                 * Try implement a share function
                 */
                 try {
-                    /*
+                    /**
                     * Format the text that will be shared
                     */
                     val content = getString(
@@ -124,8 +141,8 @@ class MainActivity : AppCompatActivity() {
                         it.link
                     )
 
-                    /*
-                    * Create the intent with action Intent.ACTION_SEND
+                    /**
+                    * Create the intent with action [Intent.ACTION_SEND]
                     * with extras of the current article link and title
                     * and type of "text/plain"
                     */
@@ -137,14 +154,15 @@ class MainActivity : AppCompatActivity() {
                             type = "text/plain"
                         }
 
-                    /*
-                    * Show a chooser to let the user choose which app he/she want to use
-                    */
+                    /**
+                     * Show a chooser to let the user choose which app he/she want to use
+                     * by [Intent.createChooser]
+                     * */
                     val intentChooser = Intent.createChooser(intentShare, "Share this article")
 
-                    /*
-                    * Show the app chooser, try it by tapping the share button
-                    */
+                    /**
+                     * Show the app chooser, try it by tapping the share button
+                     * */
                     startActivity(intentChooser)
 
 //                    Log.v(TAG, content)
@@ -155,13 +173,21 @@ class MainActivity : AppCompatActivity() {
 
 //                Toast.makeText(this, "Shared", Toast.LENGTH_SHORT).show()
             },
-            /* onDelete | On delete button clicked */
+            /**
+             * onDelete | On delete button clicked
+             *
+             * @see ArticleCacheAdapter.onDelete
+             * */
             {
                 viewModel.deleteArticle(it)
 
                 Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show()
             },
-            /* onEdit | On edit button clicked */
+            /**
+             * onEdit | On edit button clicked
+             *
+             * @see ArticleCacheAdapter.onEdit
+             * */
             {
                 val intentData = Intent(this, ArticleActivity::class.java)
                     .apply {
@@ -175,15 +201,17 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         updateAdapter()
 
-        /*
-        * Observe the search variable of ArticleViewModel, so we can update the adapter
-        * based on text searched. See more inside the ArticleViewModel
-        */
+        /**
+         * Observe the search variable of [ArticleViewModel.search],
+         * so we can update [adapter] based on text searched.
+         *
+         * @see ArticleViewModel.getArticles
+         * */
         viewModel.search.observe(this) {
             updateAdapter()
         }
 
-        // Search field text changed listener
+        /** Search field text changed listener */
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -194,7 +222,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        /* Show the navigationView when account button is clicked */
+        /** Show the navigationView when account button is clicked */
         binding.btnSettings.setOnClickListener {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
@@ -205,7 +233,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intentData)
         }
 
-        // Events based on which MenuItem is clicked
+        /** Events based on which MenuItem is clicked */
         binding.navigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.si_close -> bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
@@ -236,25 +264,25 @@ class MainActivity : AppCompatActivity() {
         // TODO: Sync with FirebaseDatabase if user is not anon
     }
 
-    // Start SignInActivity to SignIn the user
+    /** Start SignInActivity to SignIn the user */
     private fun signIn() {
         startActivity(Intent(this, SignInActivity::class.java))
         finish()
     }
 
-    // Sign out and restart activity
+    /** Sign out and restart activity */
     private fun signOut() {
         auth.signOut()
         finish()
         startActivity(intent)
     }
 
-    // Synchronize cache database with FirebaseDatabase
+    /** Synchronize cache database with FirebaseDatabase */
     private fun syncDatabase(search: String?) {
 
     }
 
-    // Update ArticleCacheAdapter
+    /** Update ArticleCacheAdapter */
     private fun updateAdapter() {
         viewModel.getArticles().observe(this) {
             adapter.submitList(it)

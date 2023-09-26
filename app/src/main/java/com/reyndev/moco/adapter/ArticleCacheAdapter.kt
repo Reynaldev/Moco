@@ -52,9 +52,9 @@ class ArticleCacheAdapter(
                 .format(article.date?.toLong())
         }
 
-        /*
-        * Show details for the view, by showing edit button and share button
-        * Try it by long tap a view
+        /**
+         * Show details for the view
+         * Try it by long tap a view
          */
         fun showDetail() {
             show = !show
@@ -65,8 +65,8 @@ class ArticleCacheAdapter(
             }
         }
 
-        /*
-        * Button bind
+        /**
+        * Bind a button to a click listener specifically
         */
         fun bindButton(
             article: Article,
@@ -105,7 +105,7 @@ class ArticleCacheAdapter(
         val item = getItem(position)
         val itemView = holder.itemView
 
-        /* Bind click listener to onClick variable */
+        /** Bind click listener to onClick variable */
         itemView.setOnClickListener {
 //            Toast.makeText(ctx, item.title, Toast.LENGTH_SHORT).show()
             onClick(item)
@@ -120,7 +120,7 @@ class ArticleCacheAdapter(
             true
         }
 
-        /*
+        /**
         * Bind every button
         */
         holder.bindButton(item, ArticleViewHolderButton.COPY, onCopy)
@@ -128,7 +128,7 @@ class ArticleCacheAdapter(
         holder.bindButton(item, ArticleViewHolderButton.DELETE, onDelete)
         holder.bindButton(item, ArticleViewHolderButton.EDIT, onEdit)
 
-        /*
+        /**
         * Assign margin to the view.
         *
         * The reason we're doing this is because there's a bug where the margin is not set in

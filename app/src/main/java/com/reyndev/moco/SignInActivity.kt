@@ -33,9 +33,9 @@ class SignInActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        /*
-        * Show user the Authentication UI and Email provider
-        * Otherwise, go to MainActivity
+        /**
+         * Show user the Authentication UI and Email provider
+         * Otherwise, go to MainActivity
          */
         if (auth.currentUser == null) {
             val signInIntent = AuthUI.getInstance()
@@ -54,8 +54,8 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
-    /*
-    * Callback function to get the authentication result
+    /**
+     * Callback function to get the authentication result
      */
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == RESULT_OK) {
