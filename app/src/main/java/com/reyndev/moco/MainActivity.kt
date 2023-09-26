@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -88,7 +89,36 @@ class MainActivity : AppCompatActivity() {
             {},
             /* onShare | On share button clicked */
             {
-                Toast.makeText(this, "Shared", Toast.LENGTH_SHORT).show()
+                /*
+                * Try implement a share function
+                */
+                try {
+                    /*
+                    * Create the intent with action Intent.ACTION_SEND
+                    * with data of the current article link
+                    * and type of "text/plain"
+                    */
+                    val intentShare = Intent(Intent.ACTION_SEND)
+                        .apply {
+                            putExtra(Intent.EXTRA_TEXT, it.link)
+                            type = "text/plain"
+                        }
+
+                    /*
+                    * Show a chooser to let the user choose which app he/she want to use
+                    */
+                    val intentChooser = Intent.createChooser(intentShare, "Share this article")
+
+                    /*
+                    * Start the intent, try it by tapping the share button
+                    */
+                    startActivity(intentChooser)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "No suitable app found", Toast.LENGTH_SHORT).show()
+                }
+
+//                Toast.makeText(this, "Shared", Toast.LENGTH_SHORT).show()
             },
             /* onDelete | On delete button clicked */
             {

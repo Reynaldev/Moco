@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -108,6 +109,8 @@ class ArticleCacheAdapter(
         itemView.setOnLongClickListener {
             onLongClick(item)
             holder.showDetail()
+
+            Log.v(TAG, "Item position: $position")
 
             true
         }
