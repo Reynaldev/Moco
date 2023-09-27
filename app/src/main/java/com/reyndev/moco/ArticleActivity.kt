@@ -25,6 +25,9 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "ArticleActivity"
 
+/**
+ * Enumerator to specify which mode does [ArticleActivity] should use.
+ * */
 enum class ArticleActivityType {
     ADD,
     EDIT
@@ -70,8 +73,8 @@ class ArticleActivity : AppCompatActivity() {
                 /** Show this if we want to ADD an article */
                 ArticleActivityType.ADD -> {
                     /**
-                    * Get intent from other app.
-                    * Otherwise, get intent from previous Activity
+                    * Get intent from another app.
+                    * Otherwise, [showLinkInputDialog]
                     */
                     if (intent?.action == Intent.ACTION_SEND) {
                         intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
@@ -152,9 +155,9 @@ class ArticleActivity : AppCompatActivity() {
         }
     }
 
-    /* Show link insert MaterialDialog */
+    /** Show link insert MaterialDialog */
     private fun showLinkInputDialog() {
-        // EditText to put inside the Dialog
+        /** EditText to put inside the Dialog */
         val input = EditText(this)
             .also {
                 it.hint = "Put the link in here"
@@ -170,6 +173,9 @@ class ArticleActivity : AppCompatActivity() {
             .show()
     }
 
+    /**
+     * Assign article data into each text field
+     * */
     private fun assignIntoView(link: String) {
         lifecycle.coroutineScope.launch {
             Log.v(TAG, "Reading..")
@@ -217,6 +223,9 @@ class ArticleActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Get each field and call [ArticleViewModel.insertArticle] to begin inserting an article
+     * */
     private fun insertArticle() {
         binding.apply {
             viewModel.insertArticle(
@@ -230,6 +239,9 @@ class ArticleActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Toggle show loading animation by given param
+     * */
     private fun toggleLoading(visible: Boolean) {
         when (visible) {
             true -> binding.loading.visibility = View.VISIBLE

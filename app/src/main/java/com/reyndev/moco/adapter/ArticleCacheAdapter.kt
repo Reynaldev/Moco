@@ -23,6 +23,10 @@ import com.reyndev.moco.viewmodel.ArticleViewModel
 
 private const val TAG = "ArticleCacheAdapter"
 
+/**
+ * Enumerator to specify which button to implement a function.
+ * For example, [ArticleCacheAdapter.ArticleViewHolder.bindButton]
+ * */
 enum class ArticleViewHolderButton {
     COPY,
     SHARE,

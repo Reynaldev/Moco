@@ -55,15 +55,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (intent?.action == Intent.ACTION_SEND) {
-            val intentData = Intent(this, ArticleActivity::class.java)
-            intentData.putExtra(ArticleActivity.EXTRA_TYPE, ArticleActivityType.ADD.name)
-            intentData.putExtra(ArticleActivity.EXTRA_LINK, intent.toString())
-            startActivity(intentData)
-
-            Log.v(TAG, "Oh! A link from the outsider, let's see...")
-        }
-
         /** BottomSheetBehavior implementation */
         bottomSheetBehavior = BottomSheetBehavior.from(binding.navigationView)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
@@ -251,17 +242,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
 
-        // TODO: Sync with FirebaseDatabase if user is not anon
-
+        /** Sync when this Activity is started */
+        viewModel.syncFromDatabase(db, auth)
     }
 
     override fun onStop() {
         super.onStop()
 
-        // TODO: Sync with FirebaseDatabase if user is not anon
+        /** Sync when this Activity is stoppped */
+        viewModel.syncToDatabase(db, auth)
     }
 
     /** Start SignInActivity to SignIn the user */
@@ -275,11 +267,6 @@ class MainActivity : AppCompatActivity() {
         auth.signOut()
         finish()
         startActivity(intent)
-    }
-
-    /** Synchronize cache database with FirebaseDatabase */
-    private fun syncDatabase(search: String?) {
-
     }
 
     /** Update ArticleCacheAdapter */

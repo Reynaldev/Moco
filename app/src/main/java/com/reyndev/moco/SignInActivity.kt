@@ -35,7 +35,7 @@ class SignInActivity : AppCompatActivity() {
 
         /**
          * Show user the Authentication UI and Email provider
-         * Otherwise, go to MainActivity
+         * Otherwise, go to [MainActivity]
          */
         if (auth.currentUser == null) {
             val signInIntent = AuthUI.getInstance()

@@ -1,6 +1,5 @@
 package com.reyndev.moco.viewmodel
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,10 +8,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.reyndev.moco.model.Article
 import com.reyndev.moco.model.ArticleDao
+import com.reyndev.moco.service.firebaseJsonToArticles
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.Locale
@@ -27,9 +28,28 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
 
     /**
      * This shouldn't be modified, it's used as a copy.
-     * See more inside the getArticles() method in this class
+     * See more inside the [getArticles] method in this class
+     *
+     * @see getArticles
      */
     private val articles = dao.getArticles().asLiveData()
+
+    /**
+     * Method to sync database from given param,
+     * only use this to sync from FirebaseDatabase
+     *
+     * @see syncFromDatabase
+     * @see syncToDatabase
+     * @see firebaseJsonToArticles
+     * */
+    private fun syncDatabase(data: MutableList<Article>) {
+        viewModelScope.launch {
+            data.forEach {
+                Log.v(TAG, "Article: $it")
+                dao.insert(it)
+            }
+        }
+    }
 
     /**
      * Convert given input into an Article class object
@@ -142,6 +162,86 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
      * */
     fun getArticleSpecified(id: Int): LiveData<Article> {
         return dao.getArticleSpecified(id).asLiveData()
+    }
+
+    /**
+     * Sync from FirebaseDatabase into local database,
+     * it will get the JSON response as an [Any],
+     * send it to [firebaseJsonToArticles] for parsing,
+     * and then will be passed to [syncDatabase].
+     *
+     * @see syncDatabase
+     * @see firebaseJsonToArticles
+     * */
+    fun syncFromDatabase(db: FirebaseDatabase, auth: FirebaseAuth) {
+        /** Skip if the user is not signed in */
+        if (auth.currentUser == null) {
+            Log.w(TAG, "User is not signed in")
+            return
+        }
+
+        /**
+         * Run inside a coroutine
+         *
+         * Why?
+         *
+         * Well, taking response from the internet can take a while
+         * and that will cause unresponsive behavior.
+         *
+         * You should have know that.
+         * */
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                Log.i(TAG, "Synchronizing to FirebaseDatabase")
+
+                /**
+                 * Get a response from FirebaseDatabase
+                 * */
+                db.reference.child(auth.currentUser!!.uid)
+                    .child("articles")
+                    .child("value")
+                    .get()
+                    .addOnSuccessListener {
+                        /** Sync */
+                        syncDatabase(firebaseJsonToArticles(it.value))
+//                        Log.v(TAG, "JSON: ${it.value}")
+                    }
+
+                Log.i(TAG, "Successfully connected to FirebaseDatabase")
+            } catch (e: Exception) {
+                Log.wtf(TAG, "Failed to connect with FirebaseDatabase")
+                e.printStackTrace()
+            }
+        }
+    }
+
+    /**
+     * A function to sync local database to FirebaseDatabase
+     * */
+    fun syncToDatabase(db: FirebaseDatabase, auth: FirebaseAuth) {
+        /** Skip if the user is not signed in */
+        if (auth.currentUser == null) {
+            Log.w(TAG, "User is not signed in")
+            return
+        }
+
+        /** Run inside a coroutine */
+        viewModelScope.launch {
+            try {
+                /**
+                 * Set the value of FirebaseDatabase from user uid child
+                 * with [articles].
+                 * */
+                db.reference.child(auth.currentUser!!.uid)
+                    .child("articles")
+                    .setValue(articles)
+
+                Log.i(TAG, "Successfully synchronized to FirebaseDatabase")
+            } catch (e: Exception) {
+                Log.wtf(TAG, "Failed to sync with FirebaseDatabase")
+                e.printStackTrace()
+            }
+        }
     }
 }
 
