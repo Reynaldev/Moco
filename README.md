@@ -5,6 +5,7 @@ Moco utilizes Room + Firebase.
 
 ## Features
 - Get link directly from the browser (by using share link button and a like) and save it
+- Library synchronization
 - Online and offline capability
 - Share or copy the article to your friend, family, etc.
 - Add, delete, and update your library
