@@ -1,5 +1,7 @@
 # Moco
-Simple android app to save articles from the internet that utilizes Room + Firebase
+Simple android app to save articles from the internet that act as an online/offline library.
+
+Moco utilizes Room + Firebase.
 
 ## Features
 - Get link directly from the browser (by using share link button and a like) and save it
@@ -9,4 +11,4 @@ Simple android app to save articles from the internet that utilizes Room + Fireb
 - Easy to use
 
 # Open sources
-- [Skrape.it](https://github.com/skrapeit/skrape.it)
+- [Skrape.it (MIT License)](https://github.com/skrapeit/skrape.it) 
