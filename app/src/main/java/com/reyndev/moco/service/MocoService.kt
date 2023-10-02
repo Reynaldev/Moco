@@ -132,7 +132,7 @@ fun firebaseJsonToArticles(obj: Any?): MutableList<Article> {
              * Instantiate [Article] object and
              * pass each param from the value we've defined above
              * */
-            val article = Article(id.toInt(), link, title, desc, date, tags)
+            val article = Article(/*id.toInt(),*/ link, title, desc, date, tags)
 
             /** Push the article into articleList */
             articleList.add(article)

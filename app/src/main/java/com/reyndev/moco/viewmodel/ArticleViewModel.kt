@@ -106,7 +106,7 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
 
             true
         } catch (e: Exception) {
-            Log.wtf(TAG, "Cannot update ${article.title} with id of ${article.id}")
+            Log.wtf(TAG, "Cannot update ${article.title}")
             e.printStackTrace()
             false
         }
@@ -124,7 +124,7 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
 
             true
         } catch (e: Exception) {
-            Log.wtf(TAG, "Cannot delete ${article.title} with id of ${article.id}")
+            Log.wtf(TAG, "Cannot delete ${article.title}")
             e.printStackTrace()
             false
         }
@@ -156,12 +156,12 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
     }
 
     /**
-     * Return an article with given id
+     * Return an article with given URL
      *
      * @return LiveData
      * */
-    fun getArticleSpecified(id: Int): LiveData<Article> {
-        return dao.getArticleSpecified(id).asLiveData()
+    fun getArticleSpecified(link: String): LiveData<Article> {
+        return dao.getArticleByLink(link).asLiveData()
     }
 
     /**

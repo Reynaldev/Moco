@@ -61,7 +61,8 @@ class ArticleActivity : AppCompatActivity() {
             intent.extras?.getString(EXTRA_TYPE)?.let {
                 ArticleActivityType.valueOf(it)
             } ?: ArticleActivityType.ADD
-        val articleId = intent.extras?.getInt(EXTRA_ARTICLE)
+//        val articleId = intent.extras?.getInt(EXTRA_ARTICLE)
+        val articleId = intent.extras?.getString(EXTRA_ARTICLE)
 
 //        Log.v(TAG, "Intent: ${intent}\nType: ${activityType}")
 
@@ -109,7 +110,6 @@ class ArticleActivity : AppCompatActivity() {
                                     /* Update */
                                     if (viewModel.updateArticle(
                                             Article(
-                                                article.id,
                                                 etLink.text.toString(),
                                                 etTitle.text.toString(),
                                                 etDesc.text.toString(),

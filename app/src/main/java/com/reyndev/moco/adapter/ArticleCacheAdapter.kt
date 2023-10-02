@@ -111,7 +111,6 @@ class ArticleCacheAdapter(
 
         /** Bind click listener to onClick variable */
         itemView.setOnClickListener {
-//            Toast.makeText(ctx, item.title, Toast.LENGTH_SHORT).show()
             onClick(item)
         }
 

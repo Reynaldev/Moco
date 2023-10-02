@@ -183,7 +183,8 @@ class MainActivity : AppCompatActivity() {
                 val intentData = Intent(this, ArticleActivity::class.java)
                     .apply {
                         putExtra(ArticleActivity.EXTRA_TYPE, ArticleActivityType.EDIT.name)
-                        putExtra(ArticleActivity.EXTRA_ARTICLE, it.id)
+//                        putExtra(ArticleActivity.EXTRA_ARTICLE, it.id)
+                        putExtra(ArticleActivity.EXTRA_ARTICLE, it.link)
                     }
 
                 startActivity(intentData)
