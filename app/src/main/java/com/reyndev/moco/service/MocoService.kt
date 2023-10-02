@@ -14,7 +14,11 @@ import it.skrape.selects.html5.p
 import org.json.JSONArray
 import org.json.JSONObject
 
-/** Function to scrap HTML from the given link */
+/**
+ * Function to scrap HTML from the given link
+ *
+ * github: https://github.com/skrapeit/skrape.it
+ * */
 suspend fun extractHtml(link: String, ctx: Context): Article? {
     val TAG = "ExtractHTML"
 
@@ -87,8 +91,8 @@ fun firebaseJsonToArticles(obj: Any?): MutableList<Article> {
          * You can try it by [Log] the output of the obj type by "obj::class.simpleName".
          * It will print the type of the obj and tells us that the type is ArrayList.
          *
-         * But we're not so sure what type of each element is, so we're passing an "*"
-         * to inside the "<>".
+         * But we're not so sure what type each element is, so we passed an "*"
+         * inside the "<>".
          * */
         val dbData = obj as ArrayList<*>
         val articleList: MutableList<Article> = mutableListOf()

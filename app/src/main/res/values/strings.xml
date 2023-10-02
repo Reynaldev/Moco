@@ -18,4 +18,12 @@
     <string name="btn_submit_edit">Edit</string>
 
     <!-- DetailArticle -->
+
+    <!-- About -->
+    <string name="about_description">
+        This app was on purpose for me to save articles from the internet and as experimental project
+    </string>
+    <string name="my_github_link">Github: https://github.com/Reynaldev/Moco</string>
+    <!-- About -->
+
 </resources>

@@ -227,7 +227,6 @@ class MainActivity : AppCompatActivity() {
         /** Events based on which MenuItem is clicked */
         binding.navigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.si_close -> bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                 R.id.si_sign_user -> {
                     if (auth.currentUser == null) {
                         signIn()
@@ -235,6 +234,8 @@ class MainActivity : AppCompatActivity() {
                         signOut()
                     }
                 }
+                R.id.si_about -> startActivity(Intent(this, AboutActivity::class.java))
+                R.id.si_close -> bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                 else -> bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             }
 
