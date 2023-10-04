@@ -11,5 +11,13 @@ Moco utilizes Room + Firebase.
 - Add, delete, and update your library
 - Easy to use
 
+## Previews
+![Moco Preview 1](https://github.com/Reynaldev/Moco/blob/assets/Moco%201.jpg)
+![Moco Preview 2](https://github.com/Reynaldev/Moco/blob/assets/Moco%202.jpg)
+![Moco Preview 3](https://github.com/Reynaldev/Moco/blob/assets/Moco%203.jpg)
+
+[Moco video preview](https://youtu.be/lKJK9aR2L8E)
+
 # Open sources
+Open source library that helped to make Moco:
 - [Skrape.it (MIT License)](https://github.com/skrapeit/skrape.it) 
