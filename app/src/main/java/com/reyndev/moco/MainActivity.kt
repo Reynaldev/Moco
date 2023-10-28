@@ -267,6 +267,7 @@ class MainActivity : AppCompatActivity() {
     /** Sign out and restart activity */
     private fun signOut() {
         auth.signOut()
+        viewModel.deleteAllArticle()
         finish()
         startActivity(intent)
     }

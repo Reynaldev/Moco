@@ -46,29 +46,42 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
         /**
          * Run in coroutine to avoid main thread blocking
          * */
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             /**
-             * Run in loop and check if each article from FirebaseDatabase
-             * is the same as the article from local database.
-             * If so, update it. Otherwise, insert it into local database.
-             *
-             * Note:
-             * The same unmatched article can be inserted many times by the [ArticleDao],
-             * I want to avoid this, but I will comeback later when I've found new solution.
-             * This still works because [ArticleDao.insert] has onConflict set to REPLACE.
-             *
-             * @see ArticleDao
+             * If the local database is empty, insert the articles.
+             * Otherwise, compare each article
              * */
-
-            var i = 0
-            while (i < data.size) {
-                if (data[i] == articles.value!![i]) {
-                    dao.update(data[i])
-                } else {
+            if (articles.value!!.isEmpty()) {
+                var i = 0
+                while (i < data.size) {
                     dao.insert(data[i])
+                    i++
                 }
+            }
+            else {
+                /**
+                 * Run in loop and check if each article from FirebaseDatabase
+                 * is the same as the article from local database.
+                 * If so, update it. Otherwise, insert it into local database.
+                 *
+                 * Note:
+                 * The same unmatched article can be inserted many times by the [ArticleDao],
+                 * I want to avoid this, but I will comeback later when I've found new solution.
+                 * This still works because [ArticleDao.insert] has onConflict set to REPLACE.
+                 *
+                 * @see ArticleDao
+                 * */
 
-                i++
+                var i = 0
+                while (i < data.size) {
+                    if (data[i] == articles.value!![i]) {
+                        dao.update(data[i])
+                    } else {
+                        dao.insert(data[i])
+                    }
+
+                    i++
+                }
             }
         }
     }
@@ -263,6 +276,15 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
                 Log.wtf(TAG, "Failed to sync with FirebaseDatabase")
                 e.printStackTrace()
             }
+        }
+    }
+
+    /**
+     * Used to DELETE all record from article table in [ArticleDatabase]. Use with caution
+     * */
+    fun deleteAllArticle() {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.deleteAllArticle()
         }
     }
 }

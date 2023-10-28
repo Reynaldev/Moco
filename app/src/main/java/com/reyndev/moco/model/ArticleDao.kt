@@ -24,4 +24,7 @@ interface ArticleDao {
 
     @Query("SELECT * FROM article WHERE link = :link")
     fun getArticleByLink(link: String): Flow<Article>
+
+    @Query("DELETE FROM article")
+    fun deleteAllArticle()
 }
