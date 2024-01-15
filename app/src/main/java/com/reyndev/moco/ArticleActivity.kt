@@ -122,16 +122,15 @@ class ArticleActivity : AppCompatActivity() {
                                         Toast.makeText(
                                             this@ArticleActivity,
                                             "Article updated",
-                                            Toast.LENGTH_SHORT
-                                        )
+                                            Toast.LENGTH_SHORT)
                                             .show()
                                     } else {
                                         // If the update is failed
                                         Toast.makeText(
                                             this@ArticleActivity,
                                             "Failed to update article",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                            Toast.LENGTH_SHORT)
+                                            .show()
                                     }
 
                                     finish()

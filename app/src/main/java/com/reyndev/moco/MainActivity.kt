@@ -9,10 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -64,9 +64,9 @@ class MainActivity : AppCompatActivity() {
         auth = Firebase.auth
 
         /**
-        * Better get MenuItem
-        *
-        * Hardcoded MenuItem -> binding.navigationView.menu[1]
+         * Better get MenuItem
+         *
+         * Hardcoded MenuItem -> binding.navigationView.menu[1]
          */
         val miSignUser = binding.navigationView.menu.findItem(R.id.si_sign_user)
 
@@ -119,12 +119,12 @@ class MainActivity : AppCompatActivity() {
              * */
             {
                 /**
-                * Try implement a share function
-                */
+                 * Try implement a share function
+                 */
                 try {
                     /**
-                    * Format the text that will be shared
-                    */
+                     * Format the text that will be shared
+                     */
                     val content = getString(
                         R.string.share_article,
                         it.title,
@@ -133,10 +133,10 @@ class MainActivity : AppCompatActivity() {
                     )
 
                     /**
-                    * Create the intent with action [Intent.ACTION_SEND]
-                    * with extras of the current article link and title
-                    * and type of "text/plain"
-                    */
+                     * Create the intent with action [Intent.ACTION_SEND]
+                     * with extras of the current article link and title
+                     * and type of "text/plain"
+                     */
                     val intentShare = Intent(Intent.ACTION_SEND)
                         .apply {
                             putExtra(Intent.EXTRA_TEXT, content)
@@ -235,6 +235,8 @@ class MainActivity : AppCompatActivity() {
                         signOut()
                     }
                 }
+
+                R.id.si_sync -> syncFromDatabase()
                 R.id.si_about -> startActivity(Intent(this, AboutActivity::class.java))
                 R.id.si_close -> bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                 else -> bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
@@ -244,19 +246,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+//    override fun onStart() {
+//        super.onStart()
+//
+//        /** Sync when this Activity is started */
+//        viewModel.syncFromDatabase(db, auth)
+//    }
 
-        /** Sync when this Activity is started */
-        viewModel.syncFromDatabase(db, auth)
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        /** Sync when this Activity is stoppped */
-        viewModel.syncToDatabase(db, auth)
-    }
+//    override fun onStop() {
+//        super.onStop()
+//
+//        /** Sync when this Activity is stoppped */
+//        viewModel.syncToDatabase(db, auth)
+//    }
 
     /** Start SignInActivity to SignIn the user */
     private fun signIn() {
@@ -270,6 +272,46 @@ class MainActivity : AppCompatActivity() {
         viewModel.deleteAllArticle()
         finish()
         startActivity(intent)
+    }
+
+    /** Database synchronization*/
+    private fun syncFromDatabase() {
+        if (auth.currentUser == null) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Warning")
+                .setMessage("You need to sign in to sync your data to cloud. Continue?")
+                .setPositiveButton("Yes, let me in") { _, _ -> this.signIn() }
+                .setNegativeButton("No way!") { dialog, _ -> dialog.dismiss() }
+                .show()
+
+            return
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Warning")
+            .setMessage("Do you want to download your previous data from cloud?")
+            .setPositiveButton("Of course!") { dialog, _ ->
+                this.startSync(true)
+                dialog.dismiss()
+            }
+            .setNegativeButton("No, only upload") { dialog, _ ->
+                this.startSync(false)
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun startSync(downloadData: Boolean) {
+        when(downloadData) {
+            true -> {
+                viewModel.syncFromDatabase(db, auth).let {
+                    viewModel.syncToDatabase(db, auth)
+                }
+            }
+            false -> {
+                viewModel.syncToDatabase(db, auth)
+            }
+        }
     }
 
     /** Update ArticleCacheAdapter */

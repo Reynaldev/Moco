@@ -6,10 +6,10 @@
         android:title="Sign In"
         android:icon="@drawable/ic_account_circle" />
 
-<!--    <item-->
-<!--        android:id="@+id/si_settings"-->
-<!--        android:title="Settings"-->
-<!--        android:icon="@drawable/ic_settings" />-->
+    <item
+        android:id="@+id/si_sync"
+        android:title="Sync"
+        android:icon="@drawable/ic_sync" />
 
     <item
         android:id="@+id/si_about"

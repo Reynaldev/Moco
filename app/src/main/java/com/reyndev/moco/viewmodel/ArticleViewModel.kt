@@ -227,7 +227,7 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
          * */
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                Log.i(TAG, "Synchronizing to FirebaseDatabase")
+                Log.i(TAG, "Synchronizing from FirebaseDatabase")
 
                 /**
                  * Get a response from FirebaseDatabase
@@ -242,7 +242,7 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
 //                        Log.v(TAG, "JSON: ${it.value}")
                     }
 
-                Log.i(TAG, "Successfully connected to FirebaseDatabase")
+                Log.i(TAG, "Successfully synchronized from FirebaseDatabase")
             } catch (e: Exception) {
                 Log.wtf(TAG, "Failed to connect with FirebaseDatabase")
                 e.printStackTrace()
