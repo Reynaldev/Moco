@@ -246,20 +246,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    override fun onStart() {
-//        super.onStart()
-//
-//        /** Sync when this Activity is started */
-//        viewModel.syncFromDatabase(db, auth)
-//    }
-
-//    override fun onStop() {
-//        super.onStop()
-//
-//        /** Sync when this Activity is stoppped */
-//        viewModel.syncToDatabase(db, auth)
-//    }
-
     /** Start SignInActivity to SignIn the user */
     private fun signIn() {
         startActivity(Intent(this, SignInActivity::class.java))
@@ -274,7 +260,7 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    /** Database synchronization*/
+    /** Show a pop up dialog to synchronize data */
     private fun syncFromDatabase() {
         if (auth.currentUser == null) {
             MaterialAlertDialogBuilder(this)
@@ -301,16 +287,14 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    /** Start synchronizing data
+     * @param downloadData will take the parameter as a decision whether the users wants to download
+     * their data or just upload it
+     * */
     private fun startSync(downloadData: Boolean) {
         when(downloadData) {
-            true -> {
-                viewModel.syncFromDatabase(db, auth).let {
-                    viewModel.syncToDatabase(db, auth)
-                }
-            }
-            false -> {
-                viewModel.syncToDatabase(db, auth)
-            }
+            true -> viewModel.syncFromDatabase(db, auth)
+            false -> viewModel.syncToDatabase(db, auth)
         }
     }
 

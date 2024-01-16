@@ -263,6 +263,8 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
         /** Run inside a coroutine */
         viewModelScope.launch {
             try {
+                Log.i(TAG, "Synchronizing to FirebaseDatabase")
+
                 /**
                  * Set the value of FirebaseDatabase from user uid child
                  * with [articles].
