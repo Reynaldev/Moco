@@ -92,12 +92,6 @@ class MainActivity : AppCompatActivity() {
 //                Toast.makeText(this, it.title, Toast.LENGTH_SHORT).show()
             },
             /**
-             * onLongClick
-             *
-             * @see ArticleCacheAdapter.onLongClick
-             * */
-            {},
-            /**
              * onCopy | On Copy button clicked
              *
              * @see ArticleCacheAdapter.onCopy

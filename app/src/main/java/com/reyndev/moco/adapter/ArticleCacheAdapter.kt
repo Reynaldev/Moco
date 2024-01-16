@@ -36,7 +36,6 @@ enum class ArticleViewHolderButton {
 
 class ArticleCacheAdapter(
     private val onClick: (Article) -> Unit,
-    private val onLongClick: (Article) -> Unit,
     private val onCopy: (Article) -> Unit,
     private val onShare: (Article) -> Unit,
     private val onDelete: (Article) -> Unit,
@@ -115,7 +114,6 @@ class ArticleCacheAdapter(
         }
 
         itemView.setOnLongClickListener {
-            onLongClick(item)
             holder.showDetail()
 
             Log.v(TAG, "Item position: $position")

@@ -52,35 +52,18 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
              * Otherwise, compare each article
              * */
             if (articles.value!!.isEmpty()) {
-                var i = 0
-                while (i < data.size) {
-                    dao.insert(data[i])
-                    i++
+                for (article: Article in data) {
+                    dao.insert(article)
                 }
-            }
-            else {
+            } else {
                 /**
-                 * Run in loop and check if each article from FirebaseDatabase
-                 * is the same as the article from local database.
-                 * If so, update it. Otherwise, insert it into local database.
-                 *
-                 * Note:
-                 * The same unmatched article can be inserted many times by the [ArticleDao],
-                 * I want to avoid this, but I will comeback later when I've found new solution.
-                 * This still works because [ArticleDao.insert] has onConflict set to REPLACE.
-                 *
-                 * @see ArticleDao
+                 * See if every article is exist in local database.
+                 * If no matching found, insert it. Otherwise, do nothing.
                  * */
-
-                var i = 0
-                while (i < data.size) {
-                    if (data[i] == articles.value!![i]) {
-                        dao.update(data[i])
-                    } else {
-                        dao.insert(data[i])
+                for (article: Article in data) {
+                    articles.value?.indexOf(article).let {
+                        if (it == null || it < 0) dao.insert(article)
                     }
-
-                    i++
                 }
             }
         }

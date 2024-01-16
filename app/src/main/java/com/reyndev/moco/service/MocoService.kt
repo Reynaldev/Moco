@@ -30,16 +30,18 @@ suspend fun extractHtml(link: String, ctx: Context): Article? {
             }
             // Get the HTML body and assign it to each variable in Article data class
             response {
+                val desc = document.p {              // Get every <p> text
+                    findAll {
+                        eachText
+                            .filter { it.length > 50 }  // Get text where length is more than 50
+                            .subList(0, 3)              // Take only first three element
+                    }
+                }.toString()
+
                 Article(
                     link = link,
                     title = document.h1 { findFirst { text } },     // Get the text of the first <H1> tag
-                    desc =  document.p {              // Get every <p> text
-                        findAll {
-                            eachText
-                                .filter { it.length > 50 }  // Get text where length is more than 50
-                                .subList(0, 3)              // Take only first three element
-                        }
-                    }.toString(),
+                    desc = desc.substring(1, desc.length - 1),
                     tags = null,   // Null for now, will be assigned later
                     date = null,   // Null for now, will be assigned later
                 )
