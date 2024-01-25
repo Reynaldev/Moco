@@ -27,6 +27,7 @@ suspend fun extractHtml(link: String, ctx: Context): Article? {
             // Set request URL based on specified parameter
             request {
                 url = link
+                timeout = 30000         // 30s timeout
             }
             // Get the HTML body and assign it to each variable in Article data class
             response {
@@ -74,14 +75,14 @@ suspend fun extractHtml(link: String, ctx: Context): Article? {
  * @see JSONObject
  * @see JSONArray
  * */
-fun firebaseJsonToArticles(obj: Any?): MutableList<Article> {
+fun firebaseJsonToArticles(data: Any?): List<Article> {
     /** Debug tag */
     val TAG = "FirebaseJsonToObject"
 
-    /** Skip if no JSON response and return an empty [MutableList] */
-    if (obj == null) {
+    /** Skip if no JSON response and return an empty [List] */
+    if (data == null) {
         Log.w(TAG, "No FirebaseDatabase data")
-        return mutableListOf()
+        return listOf()
     }
 
     /** Try parsing the JSON */
@@ -96,7 +97,7 @@ fun firebaseJsonToArticles(obj: Any?): MutableList<Article> {
          * But we're not so sure what type each element is, so we passed an "*"
          * inside the "<>".
          * */
-        val dbData = obj as ArrayList<*>
+        val dbData = data as ArrayList<*>
         val articleList: MutableList<Article> = mutableListOf()
 
         /**
@@ -138,14 +139,12 @@ fun firebaseJsonToArticles(obj: Any?): MutableList<Article> {
             /** Push the article into articleList */
             articleList.add(article)
 
-//            Log.v(TAG, "Article $i = ${article}")
-
             i++
         }
 
         Log.v(TAG, "FirebaseDatabase successfully parsed")
 
-        /** Last but not least, we return the articleList [MutableList] */
+        /** Last but not least, we return the articleList [List] */
         return articleList
     } catch (e: Exception) {
         Log.wtf(TAG, "Failed to parse FirebaseData")

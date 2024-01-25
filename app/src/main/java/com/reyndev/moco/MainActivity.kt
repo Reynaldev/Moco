@@ -23,6 +23,8 @@ import com.reyndev.moco.adapter.ArticleCacheAdapter
 import com.reyndev.moco.databinding.ActivityMainBinding
 import com.reyndev.moco.viewmodel.ArticleViewModel
 import com.reyndev.moco.viewmodel.ArticleViewModelFactory
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.runBlocking
 
 /*
 * Debugging tag, please don't remove.
@@ -191,7 +193,7 @@ class MainActivity : AppCompatActivity() {
          * Observe the search variable of [ArticleViewModel.search],
          * so we can update [adapter] based on text searched.
          *
-         * @see ArticleViewModel.getArticles
+         * @see ArticleViewModel.getArticlesByFilter
          * */
         viewModel.search.observe(this) {
             updateAdapter()
@@ -271,11 +273,15 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Warning")
             .setMessage("Do you want to download your previous data from cloud?")
             .setPositiveButton("Of course!") { dialog, _ ->
-                this.startSync(true)
+                runBlocking {
+                    startSync(true)
+                }
                 dialog.dismiss()
             }
             .setNegativeButton("No, only upload") { dialog, _ ->
-                this.startSync(false)
+                runBlocking {
+                    startSync(false)
+                }
                 dialog.dismiss()
             }
             .show()
@@ -285,16 +291,19 @@ class MainActivity : AppCompatActivity() {
      * @param downloadData will take the parameter as a decision whether the users wants to download
      * their data or just upload it
      * */
-    private fun startSync(downloadData: Boolean) {
-        when(downloadData) {
-            true -> viewModel.syncFromDatabase(db, auth)
-            false -> viewModel.syncToDatabase(db, auth)
+    @OptIn(DelicateCoroutinesApi::class)
+    private suspend fun startSync(downloadData: Boolean) {
+        if (downloadData) {
+//            GlobalScope.launch { viewModel.syncFromDatabase(db, auth) }.join()
+            viewModel.syncFromDatabase(db, auth)
         }
+
+        viewModel.syncToDatabase(db, auth)
     }
 
     /** Update ArticleCacheAdapter */
     private fun updateAdapter() {
-        viewModel.getArticles().observe(this) {
+        viewModel.getArticlesByFilter().observe(this) {
             adapter.submitList(it)
         }
     }

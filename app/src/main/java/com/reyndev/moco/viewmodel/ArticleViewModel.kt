@@ -15,6 +15,7 @@ import com.reyndev.moco.model.ArticleDao
 import com.reyndev.moco.service.firebaseJsonToArticles
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.Date
 import java.util.Locale
 
@@ -28,9 +29,9 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
 
     /**
      * This shouldn't be modified, it's used as a copy.
-     * See more inside the [getArticles] method in this class
+     * See more inside the [getArticlesByFilter] method in this class
      *
-     * @see getArticles
+     * @see getArticlesByFilter
      */
     private val articles = dao.getArticles().asLiveData()
 
@@ -42,19 +43,16 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
      * @see syncToDatabase
      * @see firebaseJsonToArticles
      * */
-    private fun syncDatabase(data: MutableList<Article>) {
-        /**
-         * Run in coroutine to avoid main thread blocking
-         * */
+    private suspend fun syncDatabase(data: List<Article>) {
         viewModelScope.launch(Dispatchers.IO) {
+            Log.i(TAG, "Writing to local database")
+
             /**
              * If the local database is empty, insert the articles.
              * Otherwise, compare each article
              * */
             if (articles.value!!.isEmpty()) {
-                for (article: Article in data) {
-                    dao.insert(article)
-                }
+                for (article: Article in data) dao.insert(article)
             } else {
                 /**
                  * See if every article is exist in local database.
@@ -66,7 +64,9 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
                     }
                 }
             }
-        }
+        }.join()
+
+        Log.i(TAG, "Finished writing to local database")
     }
 
     /**
@@ -84,7 +84,7 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
 
     /**
      * Set search value with given parameter.
-     * The given value then will be used as a filter to articles LiveData
+     * The given value then will be used as a filter to [articles] LiveData
      * */
     fun setSearch(input: String?) {
         _search.value = input
@@ -94,7 +94,7 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
      * Insert an article with given params.
      * Will return a Boolean to indicate as a result.
      *
-     * @return Boolean
+     * @return [Boolean]
      * */
     fun insertArticle(link: String, title: String, desc: String, tags: String): Boolean {
         return try {
@@ -114,7 +114,7 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
      * Update an article with given param.
      * Will return a Boolean to indicate as a result.
      *
-     * @return Boolean
+     * @return [Boolean]
      * */
     fun updateArticle(article: Article): Boolean {
         return try {
@@ -133,6 +133,8 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
     /**
      * Delete an article with given param.
      * Will return a Boolean to indicate as a result
+     *
+     * @return [Boolean]
      * */
     fun deleteArticle(article: Article): Boolean {
         return try {
@@ -149,16 +151,13 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
     }
 
     /**
-     * return articles list as a LiveData
+     * return articles list as a LiveData based on [search] value
      *
-     * @return LiveData
+     * @see [search]
+     * @return [LiveData]
      * */
-    fun getArticles(): LiveData<List<Article>> {
-        /**
-         * Reassign articles, rather than calling ArticleDao everytime or using the same variable
-         * since both ways are the same.
-         */
-        val query = articles.map { articleList ->
+    fun getArticlesByFilter(): LiveData<List<Article>> {
+        return articles.map { articleList ->
             // Check if search is empty or null
             if (!search.value.isNullOrBlank()) {
                 // Filter only matching titles
@@ -169,14 +168,12 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
                 articleList
             }
         }
-
-        return query
     }
 
     /**
      * Return an article with given URL
      *
-     * @return LiveData
+     * @return [LiveData]
      * */
     fun getArticleSpecified(link: String): LiveData<Article> {
         return dao.getArticleByLink(link).asLiveData()
@@ -191,45 +188,31 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
      * @see syncDatabase
      * @see firebaseJsonToArticles
      * */
-    fun syncFromDatabase(db: FirebaseDatabase, auth: FirebaseAuth) {
+    suspend fun syncFromDatabase(db: FirebaseDatabase, auth: FirebaseAuth) {
         /** Skip if the user is not signed in */
         if (auth.currentUser == null) {
             Log.w(TAG, "User is not signed in")
             return
         }
 
-        /**
-         * Run inside a coroutine
-         *
-         * Why?
-         *
-         * Well, taking response from the internet can take a while
-         * and that will cause unresponsive behavior.
-         *
-         * You should have know that.
-         * */
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                Log.i(TAG, "Synchronizing from FirebaseDatabase")
+        try {
+            Log.i(TAG, "Synchronizing from FirebaseDatabase")
 
-                /**
-                 * Get a response from FirebaseDatabase
-                 * */
-                db.reference.child(auth.currentUser!!.uid)
-                    .child("articles")
-                    .child("value")
-                    .get()
-                    .addOnSuccessListener {
-                        /** Sync */
-                        syncDatabase(firebaseJsonToArticles(it.value))
-//                        Log.v(TAG, "JSON: ${it.value}")
-                    }
+            /**
+             * Get a response from FirebaseDatabase
+             * */
+            val result = db.reference.child(auth.currentUser!!.uid)
+                .child("articles")
+                .child("value")
+                .get()
+                .await()
 
-                Log.i(TAG, "Successfully synchronized from FirebaseDatabase")
-            } catch (e: Exception) {
-                Log.wtf(TAG, "Failed to connect with FirebaseDatabase")
-                e.printStackTrace()
-            }
+            syncDatabase(firebaseJsonToArticles(result.value))
+
+            Log.i(TAG, "Successfully synchronized from FirebaseDatabase")
+        } catch (e: Exception) {
+            Log.wtf(TAG, "Failed to connect with FirebaseDatabase")
+            e.printStackTrace()
         }
     }
 
@@ -243,24 +226,21 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
             return
         }
 
-        /** Run inside a coroutine */
-        viewModelScope.launch {
-            try {
-                Log.i(TAG, "Synchronizing to FirebaseDatabase")
+        try {
+            Log.i(TAG, "Synchronizing to FirebaseDatabase")
 
-                /**
-                 * Set the value of FirebaseDatabase from user uid child
-                 * with [articles].
-                 * */
-                db.reference.child(auth.currentUser!!.uid)
-                    .child("articles")
-                    .setValue(articles)
+            /**
+             * Set the value of FirebaseDatabase from user uid child
+             * with [articles].
+             * */
+            db.reference.child(auth.currentUser!!.uid)
+                .child("articles")
+                .setValue(articles)
 
-                Log.i(TAG, "Successfully synchronized to FirebaseDatabase")
-            } catch (e: Exception) {
-                Log.wtf(TAG, "Failed to sync with FirebaseDatabase")
-                e.printStackTrace()
-            }
+            Log.i(TAG, "Successfully synchronized to FirebaseDatabase")
+        } catch (e: Exception) {
+            Log.wtf(TAG, "Failed to sync with FirebaseDatabase")
+            e.printStackTrace()
         }
     }
 
