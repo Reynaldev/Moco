@@ -23,7 +23,13 @@ import com.reyndev.moco.adapter.ArticleCacheAdapter
 import com.reyndev.moco.databinding.ActivityMainBinding
 import com.reyndev.moco.viewmodel.ArticleViewModel
 import com.reyndev.moco.viewmodel.ArticleViewModelFactory
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 /*
@@ -273,15 +279,11 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Warning")
             .setMessage("Do you want to download your previous data from cloud?")
             .setPositiveButton("Of course!") { dialog, _ ->
-                runBlocking {
-                    startSync(true)
-                }
+                startSync(true)
                 dialog.dismiss()
             }
             .setNegativeButton("No, only upload") { dialog, _ ->
-                runBlocking {
-                    startSync(false)
-                }
+                startSync(false)
                 dialog.dismiss()
             }
             .show()
@@ -291,14 +293,15 @@ class MainActivity : AppCompatActivity() {
      * @param downloadData will take the parameter as a decision whether the users wants to download
      * their data or just upload it
      * */
-    @OptIn(DelicateCoroutinesApi::class)
-    private suspend fun startSync(downloadData: Boolean) {
-        if (downloadData) {
-//            GlobalScope.launch { viewModel.syncFromDatabase(db, auth) }.join()
-            viewModel.syncFromDatabase(db, auth)
+    private fun startSync(downloadData: Boolean) {
+        runBlocking {
+            launch(Dispatchers.Default) {
+                when (downloadData) {
+                    true -> viewModel.syncFromDatabase(db, auth, true)
+                    false -> viewModel.syncToDatabase(db, auth)
+                }
+            }
         }
-
-        viewModel.syncToDatabase(db, auth)
     }
 
     /** Update ArticleCacheAdapter */

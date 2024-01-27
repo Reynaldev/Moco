@@ -58,7 +58,7 @@ suspend fun extractHtml(link: String, ctx: Context): Article? {
 
 /**
  * This function is used to parse the JSON retrieved from FirebaseDatabase
- * and then convert it into [MutableList] of [Article]
+ * and then convert it into [List] of [Article]
  * Example of the JSON response:
  *
  * [

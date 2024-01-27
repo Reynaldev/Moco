@@ -15,6 +15,7 @@ import com.reyndev.moco.model.ArticleDao
 import com.reyndev.moco.service.firebaseJsonToArticles
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 import java.util.Locale
@@ -44,27 +45,25 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
      * @see firebaseJsonToArticles
      * */
     private suspend fun syncDatabase(data: List<Article>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            Log.i(TAG, "Writing to local database")
+        Log.i(TAG, "Writing to local database")
 
+        /**
+         * If the local database is empty, insert the articles.
+         * Otherwise, compare each article
+         * */
+        if (articles.value!!.isEmpty()) {
+            data.forEach { dao.insert(it) }
+        } else {
             /**
-             * If the local database is empty, insert the articles.
-             * Otherwise, compare each article
+             * See if every article is exist in local database.
+             * If no matching found, insert it. Otherwise, do nothing.
              * */
-            if (articles.value!!.isEmpty()) {
-                for (article: Article in data) dao.insert(article)
-            } else {
-                /**
-                 * See if every article is exist in local database.
-                 * If no matching found, insert it. Otherwise, do nothing.
-                 * */
-                for (article: Article in data) {
-                    articles.value?.indexOf(article).let {
-                        if (it == null || it < 0) dao.insert(article)
-                    }
+            for (article: Article in data) {
+                articles.value?.indexOf(article).let {
+                    if (it == null || it < 0) dao.insert(article)
                 }
             }
-        }.join()
+        }
 
         Log.i(TAG, "Finished writing to local database")
     }
@@ -188,7 +187,7 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
      * @see syncDatabase
      * @see firebaseJsonToArticles
      * */
-    suspend fun syncFromDatabase(db: FirebaseDatabase, auth: FirebaseAuth) {
+    suspend fun syncFromDatabase(db: FirebaseDatabase, auth: FirebaseAuth, autoUpload: Boolean) {
         /** Skip if the user is not signed in */
         if (auth.currentUser == null) {
             Log.w(TAG, "User is not signed in")
@@ -201,13 +200,26 @@ class ArticleViewModel(private val dao: ArticleDao) : ViewModel() {
             /**
              * Get a response from FirebaseDatabase
              * */
-            val result = db.reference.child(auth.currentUser!!.uid)
+            db.reference.child(auth.currentUser!!.uid)
                 .child("articles")
                 .child("value")
                 .get()
-                .await()
-
-            syncDatabase(firebaseJsonToArticles(result.value))
+                .addOnSuccessListener { data ->
+                    runBlocking {
+                        launch(Dispatchers.IO) {
+                            syncDatabase(firebaseJsonToArticles(data.value))
+                        }
+                    }
+                }
+                .addOnCompleteListener { data ->
+                    if (autoUpload) {
+                        runBlocking {
+                            launch(Dispatchers.IO) {
+                                    syncToDatabase(db, auth)
+                            }
+                        }
+                    }
+                }
 
             Log.i(TAG, "Successfully synchronized from FirebaseDatabase")
         } catch (e: Exception) {
